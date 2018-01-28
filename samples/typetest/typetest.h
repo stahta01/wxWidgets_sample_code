@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id: typetest.h 35650 2005-09-23 12:56:45Z MR $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -41,8 +40,8 @@ private:
     wxTextCtrl* m_textCtrl;
     wxMimeTypesManager *m_mimeDatabase;
 
-    DECLARE_DYNAMIC_CLASS(MyApp)
-    DECLARE_EVENT_TABLE()
+    wxDECLARE_DYNAMIC_CLASS(MyApp);
+    wxDECLARE_EVENT_TABLE();
 };
 
 DECLARE_APP(MyApp)
@@ -58,7 +57,7 @@ public:
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
 
-    DECLARE_EVENT_TABLE()
+    wxDECLARE_EVENT_TABLE();
 };
 
 // ID for the menu commands

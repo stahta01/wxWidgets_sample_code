@@ -4,9 +4,8 @@
 // Author:      Vaclav Slavik
 // Modified by:
 // Created:     2002/04/05
-// RCS-ID:      $Id: artbrows.h 51246 2008-01-16 12:56:37Z VZ $
 // Copyright:   (c) Vaclav Slavik
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __ARTBROWS_H__
@@ -30,13 +29,13 @@ public:
 private:
     void OnSelectItem(wxListEvent &event);
     void OnChooseClient(wxCommandEvent &event);
-    
+
     wxListCtrl *m_list;
     wxStaticBitmap *m_canvas;
     wxStaticText *m_text;
     wxString m_client;
 
-    DECLARE_EVENT_TABLE()
+    wxDECLARE_EVENT_TABLE();
 };
 
 #endif // __ARTBROWS_H__

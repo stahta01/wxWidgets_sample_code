@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     07.07.99
-// RCS-ID:      $Id: nettest.cpp 35650 2005-09-23 12:56:45Z MR $
 // Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +35,10 @@
 
 #include "wx/dialup.h"
 
+#ifndef wxHAS_IMAGES_IN_RESOURCES
+    #include "../sample.xpm"
+#endif
+
 // ----------------------------------------------------------------------------
 // private classes
 // ----------------------------------------------------------------------------
@@ -64,7 +67,7 @@ public:
 private:
     wxDialUpManager *m_dial;
 
-    DECLARE_EVENT_TABLE()
+    wxDECLARE_EVENT_TABLE();
 };
 
 // Define a new frame type: this is going to be our main frame
@@ -87,7 +90,7 @@ public:
 
 private:
     // any class wishing to process wxWidgets events must use this macro
-    DECLARE_EVENT_TABLE()
+    wxDECLARE_EVENT_TABLE();
 };
 
 // ----------------------------------------------------------------------------
@@ -111,15 +114,15 @@ enum
 // event tables and other macros for wxWidgets
 // ----------------------------------------------------------------------------
 
-BEGIN_EVENT_TABLE(MyApp, wxApp)
+wxBEGIN_EVENT_TABLE(MyApp, wxApp)
     EVT_DIALUP_CONNECTED(MyApp::OnConnected)
     EVT_DIALUP_DISCONNECTED(MyApp::OnConnected)
-END_EVENT_TABLE()
+wxEND_EVENT_TABLE()
 
 // the event tables connect the wxWidgets events with the functions (event
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
-BEGIN_EVENT_TABLE(MyFrame, wxFrame)
+wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(NetTest_Quit,  MyFrame::OnQuit)
     EVT_MENU(NetTest_About, MyFrame::OnAbout)
     EVT_MENU(NetTest_HangUp, MyFrame::OnHangUp)
@@ -130,7 +133,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_UPDATE_UI(NetTest_Dial, MyFrame::OnUpdateUI)
 
     EVT_IDLE(MyFrame::OnIdle)
-END_EVENT_TABLE()
+wxEND_EVENT_TABLE()
 
 // Create a new application object: this macro will allow wxWidgets to create
 // the application object during program execution (it's better than using a
@@ -150,13 +153,15 @@ IMPLEMENT_APP(MyApp)
 // `Main program' equivalent: the program execution "starts" here
 bool MyApp::OnInit()
 {
+    if ( !wxApp::OnInit() )
+        return false;
+
     // Create the main application window
-    MyFrame *frame = new MyFrame(_T("Dial-up wxWidgets demo"),
+    MyFrame *frame = new MyFrame(wxT("Dial-up wxWidgets demo"),
                                  wxPoint(50, 50), wxSize(450, 340));
 
-    // Show it and tell the application that it's our main window
+    // Show it
     frame->Show(true);
-    SetTopWindow(frame);
 
     // Init dial up manager
     m_dial = wxDialUpManager::Create();
@@ -176,7 +181,7 @@ bool MyApp::OnInit()
     }
 
 #if wxUSE_STATUSBAR
-    frame->SetStatusText(GetDialer()->IsAlwaysOnline() ? _T("LAN") : _T("No LAN"), 2);
+    frame->SetStatusText(GetDialer()->IsAlwaysOnline() ? wxT("LAN") : wxT("No LAN"), 2);
 #endif // wxUSE_STATUSBAR
 
     return true;
@@ -217,22 +222,24 @@ void MyApp::OnConnected(wxDialUpEvent& event)
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
        : wxFrame((wxFrame *)NULL, wxID_ANY, title, pos, size)
 {
+    SetIcon(wxICON(sample));
+
     // create a menu bar
     wxMenu *menuFile = new wxMenu;
 
-    menuFile->Append(NetTest_Dial, _T("&Dial\tCtrl-D"), _T("Dial default ISP"));
-    menuFile->Append(NetTest_HangUp, _T("&HangUp\tCtrl-H"), _T("Hang up modem"));
+    menuFile->Append(NetTest_Dial, wxT("&Dial\tCtrl-D"), wxT("Dial default ISP"));
+    menuFile->Append(NetTest_HangUp, wxT("&HangUp\tCtrl-H"), wxT("Hang up modem"));
     menuFile->AppendSeparator();
-    menuFile->Append(NetTest_EnumISP, _T("&Enumerate ISPs...\tCtrl-E"));
-    menuFile->Append(NetTest_Check, _T("&Check connection status...\tCtrl-C"));
+    menuFile->Append(NetTest_EnumISP, wxT("&Enumerate ISPs...\tCtrl-E"));
+    menuFile->Append(NetTest_Check, wxT("&Check connection status...\tCtrl-C"));
     menuFile->AppendSeparator();
-    menuFile->Append(NetTest_About, _T("&About...\tCtrl-A"), _T("Show about dialog"));
+    menuFile->Append(NetTest_About, wxT("&About\tCtrl-A"), wxT("Show about dialog"));
     menuFile->AppendSeparator();
-    menuFile->Append(NetTest_Quit, _T("E&xit\tAlt-X"), _T("Quit this program"));
+    menuFile->Append(NetTest_Quit, wxT("E&xit\tAlt-X"), wxT("Quit this program"));
 
     // now append the freshly created menu to the menu bar...
     wxMenuBar *menuBar = new wxMenuBar;
-    menuBar->Append(menuFile, _T("&File"));
+    menuBar->Append(menuFile, wxT("&File"));
 
     // ... and attach this menu bar to the frame
     SetMenuBar(menuBar);
@@ -296,9 +303,13 @@ void MyFrame::OnDial(wxCommandEvent& WXUNUSED(event))
 void MyFrame::OnCheck(wxCommandEvent& WXUNUSED(event))
 {
    if(wxGetApp().GetDialer()->IsOnline())
+   {
       wxLogMessage(wxT("Network is online."));
+   }
    else
+   {
       wxLogMessage(wxT("Network is offline."));
+   }
 }
 
 void MyFrame::OnEnumISPs(wxCommandEvent& WXUNUSED(event))
@@ -311,7 +322,7 @@ void MyFrame::OnEnumISPs(wxCommandEvent& WXUNUSED(event))
     }
     else
     {
-        wxString msg = _T("Known ISPs:\n");
+        wxString msg = wxT("Known ISPs:\n");
         for ( size_t n = 0; n < nCount; n++ )
         {
             msg << names[n] << '\n';
@@ -337,7 +348,7 @@ void MyFrame::OnIdle(wxIdleEvent& WXUNUSED(event))
         s_isOnline = isOnline;
 
 #if wxUSE_STATUSBAR
-        SetStatusText(isOnline ? _T("Online") : _T("Offline"), 1);
+        SetStatusText(isOnline ? wxT("Online") : wxT("Offline"), 1);
 #endif // wxUSE_STATUSBAR
     }
 }

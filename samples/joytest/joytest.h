@@ -4,9 +4,8 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id: joytest.h 29684 2004-10-06 20:54:57Z ABX $
 // Copyright:   (c) Julian Smart
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 // Define a new application
@@ -36,7 +35,7 @@ public:
     void OnJoystickEvent(wxJoystickEvent& event);
 
     wxJoystick* m_stick;
-    DECLARE_EVENT_TABLE()
+    wxDECLARE_EVENT_TABLE();
 };
 
 class MyFrame: public wxFrame

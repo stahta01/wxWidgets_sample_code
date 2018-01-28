@@ -4,9 +4,8 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id: nativdlg.h 35650 2005-09-23 12:56:45Z MR $
 // Copyright:   (c) Julian Smart
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 // Define a new application
@@ -25,7 +24,7 @@ class MyFrame: public wxFrame
     void OnQuit(wxCommandEvent& event);
     void OnTest1(wxCommandEvent& event);
 
- DECLARE_EVENT_TABLE()
+ wxDECLARE_EVENT_TABLE();
 };
 
 class MyDialog : public wxDialog
@@ -34,7 +33,7 @@ class MyDialog : public wxDialog
     void OnOk(wxCommandEvent& event);
     void OnCancel(wxCommandEvent& event);
 
- DECLARE_EVENT_TABLE()
+ wxDECLARE_EVENT_TABLE();
 };
 
 #define RESOURCE_QUIT       4
