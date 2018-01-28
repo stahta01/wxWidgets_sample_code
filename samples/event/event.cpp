@@ -35,6 +35,7 @@
 
 #include <wx/statline.h>
 #include <wx/log.h>
+#include "gestures.h"
 
 // ----------------------------------------------------------------------------
 // event constants
@@ -66,16 +67,16 @@ public:
     // this one is called on application startup and is a good place for the app
     // initialization (doing it here and not in the ctor allows to have an error
     // return: if OnInit() returns false, the application terminates)
-    virtual bool OnInit();
+    virtual bool OnInit() wxOVERRIDE;
 
     // these are regular event handlers used to highlight the events handling
     // order
     void OnClickDynamicHandlerApp(wxCommandEvent& event);
     void OnClickStaticHandlerApp(wxCommandEvent& event);
 
-    // we override wxConsoleApp::FilterEvent used to highlight the events
+    // we override wxAppConsole::FilterEvent used to highlight the events
     // handling order
-    virtual int FilterEvent(wxEvent& event);
+    virtual int FilterEvent(wxEvent& event) wxOVERRIDE;
 
 private:
     wxDECLARE_EVENT_TABLE();
@@ -127,9 +128,7 @@ public:
 
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
-#ifdef wxHAS_EVENT_BIND
     void OnBind(wxCommandEvent& event);
-#endif // wxHAS_EVENT_BIND
     void OnConnect(wxCommandEvent& event);
     void OnDynamic(wxCommandEvent& event);
     void OnPushEventHandler(wxCommandEvent& event);
@@ -145,6 +144,9 @@ public:
     void OnClickDynamicHandlerFrame(wxCommandEvent& event);
     void OnClickDynamicHandlerButton(wxCommandEvent& event);
     void OnClickStaticHandlerFrame(wxCommandEvent& event);
+
+    // Gesture
+    void OnGesture(wxCommandEvent& event);
 
 private:
     // symbolic names for the status bar fields
@@ -179,6 +181,8 @@ private:
 
     // the button used to highlight the event handlers execution order
     MyEvtTestButton *m_testBtn;
+
+    wxWindowRef m_gestureFrame;
 
 
     // any class wishing to process wxWidgets events must use this macro
@@ -222,7 +226,8 @@ enum
     Event_Push,
     Event_Pop,
     Event_Custom,
-    Event_Test
+    Event_Test,
+    Event_Gesture
 };
 
 // ----------------------------------------------------------------------------
@@ -247,15 +252,14 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(Event_Quit,  MyFrame::OnQuit)
     EVT_MENU(Event_About, MyFrame::OnAbout)
 
-#ifdef wxHAS_EVENT_BIND
     EVT_MENU(Event_Bind, MyFrame::OnBind)
-#endif // wxHAS_EVENT_BIND
     EVT_MENU(Event_Connect, MyFrame::OnConnect)
 
     EVT_MENU(Event_Custom, MyFrame::OnFireCustom)
     EVT_MENU(Event_Test, MyFrame::OnTest)
     EVT_MENU(Event_Push, MyFrame::OnPushEventHandler)
     EVT_MENU(Event_Pop, MyFrame::OnPopEventHandler)
+    EVT_MENU(Event_Gesture, MyFrame::OnGesture)
 
     EVT_UPDATE_UI(Event_Pop, MyFrame::OnUpdateUIPop)
 
@@ -278,7 +282,7 @@ wxEND_EVENT_TABLE()
 // static object for many reasons) and also declares the accessor function
 // wxGetApp() which will return the reference of the right type (i.e. MyApp and
 // not wxApp)
-IMPLEMENT_APP(MyApp)
+wxIMPLEMENT_APP(MyApp);
 
 // ============================================================================
 // implementation
@@ -369,10 +373,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     menuFile->Append(Event_Quit, wxT("E&xit\tAlt-X"), wxT("Quit this program"));
 
     wxMenu *menuEvent = new wxMenu;
-#ifdef wxHAS_EVENT_BIND
     menuEvent->AppendCheckItem(Event_Bind, "&Bind\tCtrl-B",
                                "Bind or unbind a dynamic event handler");
-#endif // wxHAS_EVENT_BIND
     menuEvent->AppendCheckItem(Event_Connect, wxT("&Connect\tCtrl-C"),
                      wxT("Connect or disconnect the dynamic event handler"));
     menuEvent->Append(Event_Dynamic, wxT("&Dynamic event\tCtrl-D"),
@@ -387,6 +389,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     menuEvent->AppendSeparator();
     menuEvent->Append(Event_Custom, wxT("Fire c&ustom event\tCtrl-U"),
                       wxT("Generate a custom event"));
+    menuEvent->Append(Event_Gesture, wxT("&Gesture events\tCtrl-G"),
+                    wxT("Gesture event"));
 
     // now append the freshly created menu to the menu bar...
     wxMenuBar *menuBar = new wxMenuBar();
@@ -453,7 +457,8 @@ MyFrame::~MyFrame()
 
 void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
-    // true is to force the frame to close
+    if ( m_gestureFrame )
+        m_gestureFrame->Close(true);
     Close(true);
 }
 
@@ -511,8 +516,6 @@ void MyFrame::OnDynamic(wxCommandEvent& event)
     );
 }
 
-#ifdef wxHAS_EVENT_BIND
-
 void MyFrame::OnBind(wxCommandEvent& event)
 {
     if ( event.IsChecked() )
@@ -537,8 +540,6 @@ void MyFrame::OnBind(wxCommandEvent& event)
 
     UpdateDynamicStatus(event.IsChecked());
 }
-
-#endif // wxHAS_EVENT_BIND
 
 void MyFrame::OnConnect(wxCommandEvent& event)
 {
@@ -587,6 +588,19 @@ void MyFrame::OnPopEventHandler(wxCommandEvent& WXUNUSED(event))
 #endif // wxUSE_STATUSBAR
 }
 
+void MyFrame::OnGesture(wxCommandEvent& WXUNUSED(event))
+{
+    if ( m_gestureFrame )
+    {
+        m_gestureFrame->Raise();
+    }
+    else
+    {
+        m_gestureFrame = new MyGestureFrame();
+        m_gestureFrame->Show(true);
+    }
+}
+
 void MyFrame::OnTest(wxCommandEvent& WXUNUSED(event))
 {
     wxLogMessage(wxT("This is the test event handler in the main frame"));
@@ -612,4 +626,3 @@ void MyFrame::OnProcessCustom(wxCommandEvent& WXUNUSED(event))
 {
     wxLogMessage(wxT("Got a custom event!"));
 }
-

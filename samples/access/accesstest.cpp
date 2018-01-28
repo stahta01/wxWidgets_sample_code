@@ -57,7 +57,7 @@
 // resources
 // ----------------------------------------------------------------------------
 
-// the application icon (under Windows and OS/2 it is in resources)
+// the application icon (under Windows it is in resources)
 #ifndef wxHAS_IMAGES_IN_RESOURCES
     #include "../sample.xpm"
 #endif
@@ -149,7 +149,7 @@ wxEND_EVENT_TABLE()
 // static object for many reasons) and also declares the accessor function
 // wxGetApp() which will return the reference of the right type (i.e. MyApp and
 // not wxApp)
-IMPLEMENT_APP(MyApp)
+wxIMPLEMENT_APP(MyApp);
 
 // ============================================================================
 // implementation
@@ -404,7 +404,7 @@ void MyFrame::OnQuery(wxCommandEvent& WXUNUSED(event))
 {
     m_textCtrl->Clear();
     IAccessible* accessibleFrame = NULL;
-    if (S_OK != AccessibleObjectFromWindow((HWND) GetHWND(), OBJID_CLIENT,
+    if (S_OK != AccessibleObjectFromWindow((HWND) GetHWND(), (DWORD)OBJID_CLIENT,
         IID_IAccessible, (void**) & accessibleFrame))
     {
         Log(wxT("Could not get object."));
@@ -533,7 +533,6 @@ void MyFrame::LogObject(int indent, IAccessible* obj)
 
         if (S_OK == obj->get_accChild(var, & pDisp) && pDisp)
         {
-            wxString str;
             str.Printf(wxT("This is a real object."));
             str.Pad(indent+4, wxT(' '), false);
             Log(str);
@@ -547,7 +546,6 @@ void MyFrame::LogObject(int indent, IAccessible* obj)
         }
         else
         {
-            wxString str;
             str.Printf(wxT("This is an element."));
             str.Pad(indent+4, wxT(' '), false);
             Log(str);
@@ -637,7 +635,7 @@ wxAccStatus SplitterWindowAccessible::HitTest(const wxPoint& pt, int* childId, w
         if (splitter->IsSplit())
         {
             wxPoint clientPt = splitter->ScreenToClient(pt);
-            if (splitter->SashHitTest(clientPt.x, clientPt.y, 1))
+            if (splitter->SashHitTest(clientPt.x, clientPt.y))
             {
                 // We're over the sash
                 *childId = 2;

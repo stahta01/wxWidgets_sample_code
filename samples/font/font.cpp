@@ -29,6 +29,7 @@
 #include "wx/fontmap.h"
 #include "wx/encconv.h"
 #include "wx/splitter.h"
+#include "wx/stdpaths.h"
 #include "wx/textfile.h"
 #include "wx/settings.h"
 
@@ -56,7 +57,7 @@ public:
     // this one is called on application startup and is a good place for the app
     // initialization (doing it here and not in the ctor allows to have an error
     // return: if OnInit() returns false, the application terminates)
-    virtual bool OnInit();
+    virtual bool OnInit() wxOVERRIDE;
 };
 
 // MyCanvas is a canvas on which we show the font sample
@@ -96,6 +97,8 @@ public:
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
 
+    void OnGetBaseFont(wxCommandEvent& WXUNUSED(event))
+        { DoChangeFont(m_canvas->GetTextFont().GetBaseFont()); }
     void OnIncFont(wxCommandEvent& WXUNUSED(event)) { DoResizeFont(+2); }
     void OnDecFont(wxCommandEvent& WXUNUSED(event)) { DoResizeFont(-2); }
 
@@ -128,6 +131,7 @@ public:
     void OnSetFamily(wxCommandEvent& event);
     void OnSetFaceName(wxCommandEvent& event);
     void OnSetEncoding(wxCommandEvent& event);
+    void OnPrivateFont(wxCommandEvent& event);
 
 protected:
     bool DoEnumerateFamilies(bool fixedWidthOnly,
@@ -172,6 +176,8 @@ enum
     Font_IncSize,
     Font_DecSize,
 
+    Font_GetBaseFont,
+
     Font_Bold,
     Font_Light,
 
@@ -208,6 +214,8 @@ enum
     Font_SetFamily,
     Font_SetFaceName,
     Font_SetEncoding,
+
+    Font_Private,
     Font_Max
 };
 
@@ -224,6 +232,7 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(Font_ViewMsg, MyFrame::OnViewMsg)
     EVT_MENU(Font_About, MyFrame::OnAbout)
 
+    EVT_MENU(Font_GetBaseFont, MyFrame::OnGetBaseFont)
     EVT_MENU(Font_IncSize, MyFrame::OnIncFont)
     EVT_MENU(Font_DecSize, MyFrame::OnDecFont)
 
@@ -260,6 +269,7 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(Font_EnumFamilies, MyFrame::OnEnumerateFamilies)
     EVT_MENU(Font_EnumFixedFamilies, MyFrame::OnEnumerateFixedFamilies)
     EVT_MENU(Font_EnumEncodings, MyFrame::OnEnumerateEncodings)
+    EVT_MENU(Font_Private, MyFrame::OnPrivateFont)
 wxEND_EVENT_TABLE()
 
 // Create a new application object: this macro will allow wxWidgets to create
@@ -267,7 +277,7 @@ wxEND_EVENT_TABLE()
 // static object for many reasons) and also declares the accessor function
 // wxGetApp() which will return the reference of the right type (i.e. MyApp and
 // not wxApp)
-IMPLEMENT_APP(MyApp)
+wxIMPLEMENT_APP(MyApp);
 
 // ============================================================================
 // implementation
@@ -282,6 +292,7 @@ bool MyApp::OnInit()
 {
     if ( !wxApp::OnInit() )
         return false;
+    wxString privfont = argv[0].BeforeLast('/');
 
     // Create the main application window
     MyFrame *frame = new MyFrame(wxT("Font wxWidgets demo"),
@@ -323,6 +334,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     wxMenu *menuFont = new wxMenu;
     menuFont->Append(Font_IncSize, wxT("&Increase font size by 2 points\tCtrl-I"));
     menuFont->Append(Font_DecSize, wxT("&Decrease font size by 2 points\tCtrl-D"));
+    menuFont->Append(Font_GetBaseFont, wxT("Use &base version of the font\tCtrl-0"));
     menuFont->AppendSeparator();
     menuFont->AppendCheckItem(Font_Bold, wxT("&Bold\tCtrl-B"), wxT("Toggle bold state"));
     menuFont->AppendCheckItem(Font_Light, wxT("&Light\tCtrl-L"), wxT("Toggle light state"));
@@ -375,7 +387,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
                          wxT("Default font for user interface objects such as menus and dialog boxes. "));
     menuSelect->Append(Font_SystemSettings, wxT("System fonts"), menuSettingFonts);
 
-
     menuSelect->AppendSeparator();
     menuSelect->Append(Font_EnumFamilies, wxT("Enumerate font &families\tCtrl-F"));
     menuSelect->Append(Font_EnumFixedFamilies,
@@ -385,6 +396,45 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     menuSelect->Append(Font_EnumFamiliesForEncoding,
                      wxT("Find font for en&coding...\tCtrl-C"),
                      wxT("Find font families for given encoding"));
+
+#if wxUSE_PRIVATE_FONTS
+    // Try to use a private font, under most platforms we just look for it in
+    // the current directory but under OS X it must be in a specific location
+    // so look for it there.
+    //
+    // For OS X you also need to ensure that you actually do put wxprivate.ttf
+    // in font.app/Contents/Resources/Fonts and add the following snippet
+    //
+    //     <plist version="0.9">
+    //       <dict>
+    //         ...
+    //         <key>ATSApplicationFontsPath</key>
+    //         <string>Fonts</string>
+    //         ...
+    //       </dict>
+    //     </plist>
+    //
+    // to your font.app/Contents/Info.plist.
+
+    wxString privfont;
+#ifdef __WXOSX__
+    privfont << wxStandardPaths::Get().GetResourcesDir() << "/Fonts/";
+#endif
+    privfont << "wxprivate.ttf";
+
+    if ( !wxFont::AddPrivateFont(privfont) )
+    {
+        wxLogWarning("Failed to add private font from \"%s\"", privfont);
+    }
+    else
+    {
+        menuSelect->AppendSeparator();
+        menuSelect->Append(Font_Private,
+                           "Select private font",
+                           "Select a font available only in this application");
+    }
+#endif // wxUSE_PRIVATE_FONTS
+
 
     // now append the freshly created menu to the menu bar...
     wxMenuBar *menuBar = new wxMenuBar;
@@ -426,7 +476,7 @@ public:
 
 protected:
     virtual bool OnFontEncoding(const wxString& facename,
-                                const wxString& encoding)
+                                const wxString& encoding) wxOVERRIDE
     {
         wxString text;
         text.Printf(wxT("Encoding %u: %s (available in facename '%s')\n"),
@@ -462,7 +512,7 @@ public:
         { return m_facenames; }
 
 protected:
-    virtual bool OnFacename(const wxString& facename)
+    virtual bool OnFacename(const wxString& facename) wxOVERRIDE
     {
         m_facenames.Add(facename);
         return true;
@@ -470,7 +520,7 @@ protected:
 
     private:
         wxArrayString m_facenames;
-} fontEnumerator;
+};
 
 bool MyFrame::DoEnumerateFamilies(bool fixedWidthOnly,
                                   wxFontEncoding encoding,
@@ -864,6 +914,20 @@ void MyFrame::OnSelectFont(wxCommandEvent& WXUNUSED(event))
         wxColour colour = retData.GetColour();
 
         DoChangeFont(font, colour);
+    }
+}
+
+void MyFrame::OnPrivateFont(wxCommandEvent& WXUNUSED(event))
+{
+    wxFont font(GetCanvas()->GetTextFont());
+    if (font.SetFaceName("wxprivate"))
+    {
+        wxASSERT_MSG( font.IsOk(), wxT("The font should now be valid")) ;
+        DoChangeFont(font);
+    }
+    else
+    {
+        wxLogError("Failed to use private font.");
     }
 }
 

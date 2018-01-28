@@ -90,14 +90,14 @@ class ODComboboxWidgetsPage : public ItemContainerWidgetsPage
 public:
     ODComboboxWidgetsPage(WidgetsBookCtrl *book, wxImageList *imaglist);
 
-    virtual wxControl *GetWidget() const { return m_combobox; }
-    virtual wxTextEntryBase *GetTextEntry() const
+    virtual wxWindow *GetWidget() const wxOVERRIDE { return m_combobox; }
+    virtual wxTextEntryBase *GetTextEntry() const wxOVERRIDE
         { return m_combobox ? m_combobox->GetTextCtrl() : NULL; }
-    virtual wxItemContainer* GetContainer() const { return m_combobox; }
-    virtual void RecreateWidget() { CreateCombo(); }
+    virtual wxItemContainer* GetContainer() const wxOVERRIDE { return m_combobox; }
+    virtual void RecreateWidget() wxOVERRIDE { CreateCombo(); }
 
     // lazy creation of the content
-    virtual void CreateContent();
+    virtual void CreateContent() wxOVERRIDE;
 
 protected:
     // event handlers
@@ -242,7 +242,7 @@ public:
     virtual void OnDrawItem(wxDC& dc,
                             const wxRect& rect,
                             int item,
-                            int WXUNUSED(flags)) const
+                            int WXUNUSED(flags)) const wxOVERRIDE
     {
         if ( item == wxNOT_FOUND )
             return;
@@ -268,7 +268,7 @@ public:
     }
 
     virtual void OnDrawBackground(wxDC& dc, const wxRect& rect,
-                                  int item, int flags ) const
+                                  int item, int flags ) const wxOVERRIDE
     {
 
         // If item is selected or even, or we are painting the
@@ -287,12 +287,12 @@ public:
         dc.DrawRectangle(rect);
     }
 
-    virtual wxCoord OnMeasureItem(size_t WXUNUSED(item)) const
+    virtual wxCoord OnMeasureItem(size_t WXUNUSED(item)) const wxOVERRIDE
     {
         return 48;
     }
 
-    virtual wxCoord OnMeasureItemWidth(size_t WXUNUSED(item)) const
+    virtual wxCoord OnMeasureItemWidth(size_t WXUNUSED(item)) const wxOVERRIDE
     {
         return -1; // default - will be measured from text width
     }
@@ -305,8 +305,7 @@ IMPLEMENT_WIDGETS_PAGE(ODComboboxWidgetsPage, wxT("OwnerDrawnCombobox"),
 
 ODComboboxWidgetsPage::ODComboboxWidgetsPage(WidgetsBookCtrl *book,
                                              wxImageList *imaglist)
-                  : ItemContainerWidgetsPage(book, imaglist, odcombobox_xpm),
-                    m_textPopupMinWidth(NULL), m_textPopupHeight(NULL)
+                  : ItemContainerWidgetsPage(book, imaglist, odcombobox_xpm)
 {
     // init everything
     m_chkSort =
@@ -349,7 +348,7 @@ void ODComboboxWidgetsPage::CreateContent()
     wxButton *btn = new wxButton(this, ODComboPage_Reset, wxT("&Reset"));
     sizerStyle->Add(btn, 0, wxALIGN_CENTRE_HORIZONTAL | wxALL, 3);
 
-    sizerLeft->Add(sizerStyle, 0, wxGROW | wxALIGN_CENTRE_HORIZONTAL);
+    sizerLeft->Add(sizerStyle, wxSizerFlags().Expand());
 
     // left pane - popup adjustment box
     box = new wxStaticBox(this, wxID_ANY, wxT("Adjust &popup"));
@@ -370,7 +369,7 @@ void ODComboboxWidgetsPage::CreateContent()
 
     m_chkAlignpopupright = CreateCheckBoxAndAddToSizer(sizerPopupPos, wxT("Align Right"));
 
-    sizerLeft->Add(sizerPopupPos, 0, wxGROW | wxALIGN_CENTRE_HORIZONTAL | wxTOP, 2);
+    sizerLeft->Add(sizerPopupPos, wxSizerFlags().Expand().Border(wxTOP, 2));
 
     // left pane - button adjustment box
     box = new wxStaticBox(this, wxID_ANY, wxT("Adjust &button"));
@@ -397,7 +396,7 @@ void ODComboboxWidgetsPage::CreateContent()
 
     m_chkAlignbutleft = CreateCheckBoxAndAddToSizer(sizerButtonPos, wxT("Align Left"));
 
-    sizerLeft->Add(sizerButtonPos, 0, wxGROW | wxALIGN_CENTRE_HORIZONTAL | wxTOP, 2);
+    sizerLeft->Add(sizerButtonPos, wxSizerFlags().Expand().Border(wxTOP, 2));
 
     // middle pane
     wxStaticBox *box2 = new wxStaticBox(this, wxID_ANY,
@@ -496,7 +495,7 @@ void ODComboboxWidgetsPage::Reset()
 
 void ODComboboxWidgetsPage::CreateCombo()
 {
-    int flags = ms_defaultFlags;
+    int flags = GetAttrs().m_defaultFlags;
 
     if ( m_chkSort->GetValue() )
         flags |= wxCB_SORT;
@@ -650,11 +649,6 @@ void ODComboboxWidgetsPage::OnTextPopupWidth(wxCommandEvent& WXUNUSED(event))
 {
     long l = 0;
 
-    if (!m_textPopupMinWidth)
-    {
-        return;
-    }
-
     m_textPopupMinWidth->GetValue().ToLong(&l);
 
     if (m_combobox && l > 0)
@@ -666,11 +660,6 @@ void ODComboboxWidgetsPage::OnTextPopupWidth(wxCommandEvent& WXUNUSED(event))
 void ODComboboxWidgetsPage::OnTextPopupHeight(wxCommandEvent& WXUNUSED(event))
 {
     long l = 0;
-
-    if (!m_textPopupHeight)
-    {
-        return;
-    }
 
     m_textPopupHeight->GetValue().ToLong(&l);
 

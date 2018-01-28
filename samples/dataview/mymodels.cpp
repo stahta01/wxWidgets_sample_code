@@ -428,11 +428,22 @@ void MyListModel::GetValueByRow( wxVariant &variant,
             }
             break;
 
+        case Col_Date:
+            variant = wxDateTime(1, wxDateTime::Jan, 2000).Add(wxTimeSpan(row));
+            break;
+
         case Col_TextWithAttr:
             {
                 static const char *labels[5] =
                 {
-                    "blue", "green", "red", "bold cyan", "default",
+                    // These strings will look wrong without wxUSE_MARKUP, but
+                    // it's just a sample, so we don't care.
+                    "<span color=\"#87ceeb\">light</span> and "
+                        "<span color=\"#000080\">dark</span> blue",
+                    "<big>growing green</big>",
+                    "<i>emphatic &amp; red</i>",
+                    "<b>bold &amp;&amp; cyan</b>",
+                    "<small><tt>dull default</tt></small>",
                 };
 
                 variant = labels[row % 5];
@@ -440,7 +451,13 @@ void MyListModel::GetValueByRow( wxVariant &variant,
             break;
 
         case Col_Custom:
-            variant = wxString::Format("%d", row % 100);
+            {
+                IntToStringMap::const_iterator it = m_customColValues.find(row);
+                if ( it != m_customColValues.end() )
+                    variant = it->second;
+                else
+                    variant = wxString::Format("%d", row % 100);
+            }
             break;
 
         case Col_Max:
@@ -454,12 +471,14 @@ bool MyListModel::GetAttrByRow( unsigned int row, unsigned int col,
     switch ( col )
     {
         case Col_EditableText:
+        case Col_Date:
             return false;
 
         case Col_IconText:
             if ( !(row % 2) )
                 return false;
-            attr.SetColour(*wxLIGHT_GREY);
+            attr.SetColour(*wxYELLOW);
+            attr.SetBackgroundColour(*wxLIGHT_GREY);
             break;
 
         case Col_TextWithAttr:
@@ -524,9 +543,13 @@ bool MyListModel::SetValueByRow( const wxVariant &variant,
             }
             return true;
 
+        case Col_Date:
         case Col_TextWithAttr:
-        case Col_Custom:
             wxLogError("Cannot edit the column %d", col);
+            break;
+
+        case Col_Custom:
+            m_customColValues[row] = variant.GetString();
             break;
 
         case Col_Max:

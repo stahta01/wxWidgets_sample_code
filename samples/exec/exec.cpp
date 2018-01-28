@@ -50,6 +50,7 @@
     #include "wx/sizer.h"
 #endif
 
+#include "wx/filename.h"
 #include "wx/txtstrm.h"
 #include "wx/numdlg.h"
 #include "wx/textdlg.h"
@@ -83,7 +84,7 @@ public:
     // this one is called on application startup and is a good place for the app
     // initialization (doing it here and not in the ctor allows to have an error
     // return: if OnInit() returns false, the application terminates)
-    virtual bool OnInit();
+    virtual bool OnInit() wxOVERRIDE;
 };
 
 // Define an array of process pointers used by MyFrame
@@ -263,7 +264,7 @@ public:
     // instead of overriding this virtual function we might as well process the
     // event from it in the frame class - this might be more convenient in some
     // cases
-    virtual void OnTerminate(int pid, int status);
+    virtual void OnTerminate(int pid, int status) wxOVERRIDE;
 
 protected:
     MyFrame *m_parent;
@@ -280,7 +281,7 @@ public:
             Redirect();
         }
 
-    virtual void OnTerminate(int pid, int status);
+    virtual void OnTerminate(int pid, int status) wxOVERRIDE;
 
     virtual bool HasInput();
 };
@@ -295,7 +296,7 @@ public:
         {
         }
 
-    virtual bool HasInput();
+    virtual bool HasInput() wxOVERRIDE;
 
 private:
     wxString m_input;
@@ -402,7 +403,7 @@ wxEND_EVENT_TABLE()
 // static object for many reasons) and also declares the accessor function
 // wxGetApp() which will return the reference of the right type (i.e. MyApp and
 // not wxApp)
-IMPLEMENT_APP(MyApp)
+wxIMPLEMENT_APP(MyApp);
 
 // ============================================================================
 // implementation
@@ -1078,7 +1079,7 @@ void MyFrame::OnFileExec(wxCommandEvent& WXUNUSED(event))
     if ( !AskUserForFileName() )
         return;
 
-    wxString ext = gs_lastFile.AfterLast(wxT('.'));
+    wxString ext = wxFileName(gs_lastFile).GetExt();
     wxFileType *ft = wxTheMimeTypesManager->GetFileTypeFromExtension(ext);
     if ( !ft )
     {
@@ -1088,8 +1089,15 @@ void MyFrame::OnFileExec(wxCommandEvent& WXUNUSED(event))
     }
 
     wxString cmd;
-    bool ok = ft->GetOpenCommand(&cmd,
-                                 wxFileType::MessageParameters(gs_lastFile));
+    bool ok = false;
+    const wxFileType::MessageParameters params(gs_lastFile);
+#ifdef __WXMSW__
+    // try editor, for instance Notepad if extension is .xml
+    cmd = ft->GetExpandedCommand(wxT("edit"), params);
+    ok = !cmd.empty();
+#endif
+    if (!ok) // else try viewer
+        ok = ft->GetOpenCommand(&cmd, params);
     delete ft;
     if ( !ok )
     {

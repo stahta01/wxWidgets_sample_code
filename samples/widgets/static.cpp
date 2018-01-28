@@ -93,8 +93,8 @@ public:
     StaticWidgetsPage(WidgetsBookCtrl *book, wxImageList *imaglist);
     virtual ~StaticWidgetsPage(){};
 
-    virtual wxControl *GetWidget() const { return m_statText; }
-    virtual Widgets GetWidgets() const
+    virtual wxWindow *GetWidget() const wxOVERRIDE { return m_statText; }
+    virtual Widgets GetWidgets() const wxOVERRIDE
     {
         Widgets widgets;
         widgets.push_back(m_sizerStatBox->GetStaticBox());
@@ -108,14 +108,17 @@ public:
 
         return widgets;
     }
-    virtual void RecreateWidget() { CreateStatic(); }
+    virtual void RecreateWidget() wxOVERRIDE { CreateStatic(); }
 
     // lazy creation of the content
-    virtual void CreateContent();
+    virtual void CreateContent() wxOVERRIDE;
 
 protected:
     // event handlers
     void OnCheckOrRadioBox(wxCommandEvent& event);
+#ifdef wxHAS_WINDOW_LABEL_IN_STATIC_BOX
+    void OnBoxCheckBox(wxCommandEvent& event);
+#endif // wxHAS_WINDOW_LABEL_IN_STATIC_BOX
 
     void OnButtonReset(wxCommandEvent& event);
     void OnButtonBoxText(wxCommandEvent& event);
@@ -137,6 +140,9 @@ protected:
     // the check/radio boxes for styles
     wxCheckBox *m_chkVert,
                *m_chkGeneric,
+#ifdef wxHAS_WINDOW_LABEL_IN_STATIC_BOX
+               *m_chkBoxWithCheck,
+#endif // wxHAS_WINDOW_LABEL_IN_STATIC_BOX
                *m_chkAutoResize,
                *m_chkEllipsize;
 
@@ -207,6 +213,9 @@ StaticWidgetsPage::StaticWidgetsPage(WidgetsBookCtrl *book,
     m_chkVert =
     m_chkAutoResize =
     m_chkGeneric =
+#ifdef wxHAS_WINDOW_LABEL_IN_STATIC_BOX
+    m_chkBoxWithCheck =
+#endif // wxHAS_WINDOW_LABEL_IN_STATIC_BOX
 #if wxUSE_MARKUP
     m_chkGreen =
 #endif // wxUSE_MARKUP
@@ -243,6 +252,9 @@ void StaticWidgetsPage::CreateContent()
 
     m_chkGeneric = CreateCheckBoxAndAddToSizer(sizerLeft,
                                                "&Generic wxStaticText");
+#ifdef wxHAS_WINDOW_LABEL_IN_STATIC_BOX
+    m_chkBoxWithCheck = CreateCheckBoxAndAddToSizer(sizerLeft, "Checkable &box");
+#endif // wxHAS_WINDOW_LABEL_IN_STATIC_BOX
     m_chkVert = CreateCheckBoxAndAddToSizer(sizerLeft, "&Vertical line");
     m_chkAutoResize = CreateCheckBoxAndAddToSizer(sizerLeft, "&Fit to text");
     sizerLeft->Add(5, 5, 0, wxGROW | wxALL, 5); // spacer
@@ -367,6 +379,9 @@ void StaticWidgetsPage::CreateContent()
 void StaticWidgetsPage::Reset()
 {
     m_chkGeneric->SetValue(false);
+#ifdef wxHAS_WINDOW_LABEL_IN_STATIC_BOX
+    m_chkBoxWithCheck->SetValue(false);
+#endif // wxHAS_WINDOW_LABEL_IN_STATIC_BOX
     m_chkVert->SetValue(false);
     m_chkAutoResize->SetValue(true);
     m_chkEllipsize->SetValue(true);
@@ -395,8 +410,8 @@ void StaticWidgetsPage::CreateStatic()
     }
 
     int flagsBox = 0,
-        flagsText = ms_defaultFlags,
-        flagsDummyText = ms_defaultFlags;
+        flagsText = GetAttrs().m_defaultFlags,
+        flagsDummyText = GetAttrs().m_defaultFlags;
 
     if ( !m_chkAutoResize->GetValue() )
     {
@@ -469,10 +484,28 @@ void StaticWidgetsPage::CreateStatic()
     flagsText |= align;
     flagsBox |= align;
 
-    wxStaticBox *staticBox = new wxStaticBox(this, wxID_ANY,
-                                             m_textBox->GetValue(),
-                                             wxDefaultPosition, wxDefaultSize,
-                                             flagsBox);
+    wxStaticBox *staticBox;
+#ifdef wxHAS_WINDOW_LABEL_IN_STATIC_BOX
+    if ( m_chkBoxWithCheck->GetValue() )
+    {
+        wxCheckBox* const label = new wxCheckBox(this, wxID_ANY,
+                                                 m_textBox->GetValue());
+        label->Bind(wxEVT_CHECKBOX, &StaticWidgetsPage::OnBoxCheckBox, this);
+
+        staticBox = new wxStaticBox(this, wxID_ANY,
+                                    label,
+                                    wxDefaultPosition, wxDefaultSize,
+                                    flagsBox);
+    }
+    else // normal static box
+#endif // wxHAS_WINDOW_LABEL_IN_STATIC_BOX
+    {
+        staticBox = new wxStaticBox(this, wxID_ANY,
+                                    m_textBox->GetValue(),
+                                    wxDefaultPosition, wxDefaultSize,
+                                    flagsBox);
+    }
+
     m_sizerStatBox = new wxStaticBoxSizer(staticBox, isVert ? wxHORIZONTAL
                                                             : wxVERTICAL);
 
@@ -518,12 +551,12 @@ void StaticWidgetsPage::CreateStatic()
                                   isVert ? wxLI_VERTICAL : wxLI_HORIZONTAL);
 #endif // wxUSE_STATLINE
 
-    m_sizerStatBox->Add(m_statText, 0, wxGROW | wxALL, 5);
+    m_sizerStatBox->Add(m_statText, 0, wxGROW);
 #if wxUSE_STATLINE
-    m_sizerStatBox->Add(m_statLine, 0, wxGROW | wxALL, 5);
+    m_sizerStatBox->Add(m_statLine, 0, wxGROW | wxTOP | wxBOTTOM, 10);
 #endif // wxUSE_STATLINE
 #if wxUSE_MARKUP
-    m_sizerStatBox->Add(m_statMarkup, 0, wxALL, 5);
+    m_sizerStatBox->Add(m_statMarkup);
 #endif // wxUSE_MARKUP
 
     m_sizerStatic->Add(m_sizerStatBox, 0, wxGROW);
@@ -536,6 +569,8 @@ void StaticWidgetsPage::CreateStatic()
     staticBox->Connect(wxEVT_LEFT_UP,
                        wxMouseEventHandler(StaticWidgetsPage::OnMouseEvent),
                        NULL, this);
+
+    SetUpWidget();
 }
 
 // ----------------------------------------------------------------------------
@@ -558,6 +593,14 @@ void StaticWidgetsPage::OnCheckOrRadioBox(wxCommandEvent& event)
 
     CreateStatic();
 }
+
+#ifdef wxHAS_WINDOW_LABEL_IN_STATIC_BOX
+void StaticWidgetsPage::OnBoxCheckBox(wxCommandEvent& event)
+{
+    wxLogMessage("Box check box has been %schecked",
+                 event.IsChecked() ? "": "un");
+}
+#endif // wxHAS_WINDOW_LABEL_IN_STATIC_BOX
 
 void StaticWidgetsPage::OnButtonBoxText(wxCommandEvent& WXUNUSED(event))
 {

@@ -17,21 +17,16 @@
 // created subsequently.
 //
 // (1) Make MyApp::OnInit not create a main window.
-// (2) Make MFC's InitInstance create a main window, and remove
-//     creation of CDummyWindow.
+// (2) Define a class deriving from wxMFCWinApp and override its InitMainWnd()
+//     to create the main window in MFC code.
 //
 // This can be accomplished by setting START_WITH_MFC_WINDOW to 1 below.
 
 #define START_WITH_MFC_WINDOW 0
 
+// NOTES:
 //
-// IMPORTANT NOTES:
-//
-// (1) You may need to set wxUSE_MFC to 1 in include/wx/msw/setup.h but
-//     normally this shouldn't be needed any longer, i.e. it works without
-//     it for me (VZ)
-//
-// (2) You should link with MFC DLL, not static libraries: or, to use static
+//  *  You should link with MFC DLL, not static libraries: or, to use static
 //     run-time libraries, use this command for both building wxWidgets and
 //     the sample:
 //
@@ -40,7 +35,7 @@
 //     Unless the run-time library settings match for wxWidgets and MFC, you
 //     will get link errors for symbols such as __mbctype, __argc, and __argv
 //
-// (3) If you see bogus memory leaks within the MSVC IDE on exit, in this
+//  *  If you see bogus memory leaks within the MSVC IDE on exit, in this
 //     sample or in your own project, you must be using __WXDEBUG__ +
 //     WXUSINGDLL + _AFXDLL
 //     Unfortunately this confuses the MSVC/MFC leak detector. To do away with
@@ -75,6 +70,10 @@
 #endif
 
 #include "wx/evtloop.h"
+#include "wx/nativewin.h"
+#include "wx/spinctrl.h"
+
+#include "wx/msw/mfc.h"
 
 #include "resource.h"
 
@@ -85,19 +84,15 @@
 // theApp:
 // Just creating this application object runs the whole application.
 //
-CTheApp theApp;
+SampleMFCWinApp theApp;
 
 // wxWidgets elements
 
-// Define a new application type
-class MyApp: public wxApp
+// Define a new application type inheriting from wxAppWithMFC
+class MyApp: public wxAppWithMFC
 {
 public:
-    virtual bool OnInit();
-
-    // we need to override this as the default behaviour only works when we're
-    // running wxWidgets main loop, not MFC one
-    virtual void ExitMainLoop();
+    virtual bool OnInit() wxOVERRIDE;
 
     wxFrame *CreateFrame();
 };
@@ -126,14 +121,46 @@ public:
     wxDECLARE_EVENT_TABLE();
 };
 
+class MyPanel : public wxPanel
+{
+public:
+    MyPanel(wxWindow *parent, const wxPoint& pos)
+        : wxPanel(parent, wxID_ANY, pos)
+    {
+        wxSizer* const sizer = new wxFlexGridSizer(2, wxSize(5, 5));
+        sizer->Add(new wxStaticText(this, wxID_ANY, "Enter your &name:"),
+                   wxSizerFlags().Center().Right());
+        m_textName = new wxTextCtrl(this, wxID_ANY);
+        m_textName->SetHint("First Last");
+        sizer->Add(m_textName, wxSizerFlags().Expand().CenterVertical());
+
+        sizer->Add(new wxStaticText(this, wxID_ANY, "And your &age:"),
+                   wxSizerFlags().Center().Right());
+        m_spinAge = new wxSpinCtrl(this, wxID_ANY);
+        sizer->Add(m_spinAge, wxSizerFlags().Expand().CenterVertical());
+
+        wxStaticBoxSizer* const
+            box = new wxStaticBoxSizer(wxVERTICAL, this, "wxWidgets box");
+        box->Add(sizer, wxSizerFlags(1).Expand());
+        SetSizer(box);
+
+        // We won't be resized automatically, so set our size ourselves.
+        SetSize(GetBestSize());
+    }
+
+private:
+    wxTextCtrl* m_textName;
+    wxSpinCtrl* m_spinAge;
+};
+
 // ID for the menu quit command
 #define HELLO_QUIT 1
 #define HELLO_NEW  2
 
-DECLARE_APP(MyApp)
+wxDECLARE_APP(MyApp);
 
-// notice use of IMPLEMENT_APP_NO_MAIN() instead of the usual IMPLEMENT_APP!
-IMPLEMENT_APP_NO_MAIN(MyApp)
+// Notice use of wxIMPLEMENT_APP_NO_MAIN() instead of the usual wxIMPLEMENT_APP!
+wxIMPLEMENT_APP_NO_MAIN(MyApp);
 
 #ifdef _UNICODE
 // In Unicode build MFC normally requires to manually change the entry point to
@@ -152,6 +179,18 @@ CMainWindow::CMainWindow()
     LoadAccelTable( wxT("MainAccelTable") );
     Create( NULL, wxT("Hello Foundation Application"),
         WS_OVERLAPPEDWINDOW, rectDefault, NULL, wxT("MainMenu") );
+
+    // Create a container representing the MFC window in wxWidgets window
+    // hierarchy.
+    m_containerWX = new wxNativeContainerWindow(m_hWnd);
+
+    // Now we can create children of this container as usual.
+    new MyPanel(m_containerWX, wxPoint(5, 5));
+
+    // An ugly but necessary workaround to prevent the container TLW from
+    // resizing the panel to fit its entire client area as it would do if it
+    // were its only child.
+    new wxWindow(m_containerWX, wxID_ANY, wxPoint(4, 4), wxSize(1, 1));
 }
 
 void CMainWindow::OnPaint()
@@ -197,68 +236,6 @@ ON_COMMAND( IDM_TEST, OnTest )
 //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-BOOL CTheApp::InitInstance()
-{
-    if ( !CWinApp::InitInstance() )
-        return FALSE;
-
-    // TODO: cmd line parsing
-    WXDLLIMPEXP_BASE void wxSetInstance(HINSTANCE hInst);
-    wxSetInstance(m_hInstance);
-    wxApp::m_nCmdShow = m_nCmdShow;
-    int argc = 0;
-    wxChar **argv = NULL;
-    wxEntryStart(argc, argv);
-    if ( !wxTheApp || !wxTheApp->CallOnInit() )
-        return FALSE;
-
-#if START_WITH_MFC_WINDOW
-    // Demonstrate creation of an initial MFC main window.
-    m_pMainWnd = new CMainWindow();
-    m_pMainWnd->ShowWindow( m_nCmdShow );
-    m_pMainWnd->UpdateWindow();
-#else
-    // Demonstrate creation of an initial wxWidgets main window.
-    // Wrap wxWidgets window in a dummy MFC window and
-    // make the main window.
-    if (wxTheApp && wxTheApp->GetTopWindow())
-    {
-        m_pMainWnd = new CDummyWindow((HWND) wxTheApp->GetTopWindow()->GetHWND());
-    }
-#endif
-
-    return TRUE;
-}
-
-int CTheApp::ExitInstance()
-{
-#if !START_WITH_MFC_WINDOW
-    delete m_pMainWnd;
-#endif
-
-    if ( wxTheApp )
-        wxTheApp->OnExit();
-    wxEntryCleanup();
-
-    return CWinApp::ExitInstance();
-}
-
-// Override this to provide wxWidgets message loop compatibility
-BOOL CTheApp::PreTranslateMessage(MSG *msg)
-{
-    wxEventLoop * const
-        evtLoop = static_cast<wxEventLoop *>(wxEventLoop::GetActive());
-    if ( evtLoop && evtLoop->PreProcessMessage(msg) )
-        return TRUE;
-
-    return CWinApp::PreTranslateMessage(msg);
-}
-
-BOOL CTheApp::OnIdle(LONG WXUNUSED(lCount))
-{
-    return wxTheApp && wxTheApp->ProcessIdle();
-}
-
 /*********************************************************************
 * wxWidgets elements
 ********************************************************************/
@@ -269,20 +246,10 @@ bool MyApp::OnInit()
         return false;
 
 #if !START_WITH_MFC_WINDOW
-    // as we're not inside wxWidgets main loop, the default logic doesn't work
-    // in our case and we need to do this explicitly
-    SetExitOnFrameDelete(true);
-
     (void) CreateFrame();
 #endif
 
     return true;
-}
-
-void MyApp::ExitMainLoop()
-{
-    // instead of existing wxWidgets main loop, terminate the MFC one
-    ::PostQuitMessage(0);
 }
 
 wxFrame *MyApp::CreateFrame()
@@ -405,17 +372,3 @@ void MyChild::OnActivate(wxActivateEvent& event)
     if (event.GetActive() && canvas)
         canvas->SetFocus();
 }
-
-// Dummy MFC window for specifying a valid main window to MFC, using
-// a wxWidgets HWND.
-CDummyWindow::CDummyWindow(HWND hWnd)
-{
-    Attach(hWnd);
-}
-
-// Don't let the CWnd destructor delete the HWND
-CDummyWindow::~CDummyWindow()
-{
-    Detach();
-}
-

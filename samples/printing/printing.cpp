@@ -62,7 +62,7 @@ wxPageSetupDialogData* g_pageSetupData = NULL;
 // MyApp
 // ----------------------------------------------------------------------------
 
-IMPLEMENT_APP(MyApp)
+wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit(void)
 {
@@ -162,6 +162,8 @@ void MyApp::Draw(wxDC&dc)
 
     dc.DrawText( wxT("Test message: this is in 10 point text"), 10, 180);
 
+    dc.DrawRotatedText( wxS("This\nis\na multi-line\ntext"), 170, 100, -m_angle/1.5);
+
 #if wxUSE_UNICODE
     const char *test = "Hebrew    שלום -- Japanese (日本語)";
     wxString tmp = wxConvUTF8.cMB2WC( test );
@@ -217,21 +219,7 @@ void MyApp::Draw(wxDC&dc)
         dc.DrawBitmap( m_bitmap, 10, 10 );
 
 #if wxUSE_GRAPHICS_CONTEXT
-    wxGraphicsContext *gc = NULL;
-
-    wxPrinterDC *printer_dc = wxDynamicCast( &dc, wxPrinterDC );
-    if (printer_dc)
-        gc = wxGraphicsContext::Create( *printer_dc );
-
-    wxWindowDC *window_dc = wxDynamicCast( &dc, wxWindowDC );
-    if (window_dc)
-        gc = wxGraphicsContext::Create( *window_dc );
-
-#ifdef __WXMSW__
-    wxEnhMetaFileDC *emf_dc = wxDynamicCast( &dc, wxEnhMetaFileDC );
-    if (emf_dc)
-        gc = wxGraphicsContext::Create( *emf_dc );
-#endif
+    wxGraphicsContext *gc = wxGraphicsContext::CreateFromUnknownDC(dc);
 
     if (gc)
     {
@@ -263,6 +251,7 @@ void MyApp::Draw(wxDC&dc)
         delete gc;
     }
 #endif
+
 }
 
 
@@ -696,21 +685,20 @@ void MyPrintout::DrawPageTwo()
     { // GetTextExtent demo:
         wxString words[7] = { wxT("This "), wxT("is "), wxT("GetTextExtent "),
                              wxT("testing "), wxT("string. "), wxT("Enjoy "), wxT("it!") };
-        wxCoord w, h;
         long x = 200, y= 250;
-        wxFont fnt(15, wxSWISS, wxNORMAL, wxNORMAL);
 
-        dc->SetFont(fnt);
+        dc->SetFont(wxFontInfo(15).Family(wxFONTFAMILY_SWISS));
 
         for (int i = 0; i < 7; i++)
         {
+            wxCoord wordWidth, wordHeight;
             wxString word = words[i];
             word.Remove( word.Len()-1, 1 );
-            dc->GetTextExtent(word, &w, &h);
-            dc->DrawRectangle(x, y, w, h);
-            dc->GetTextExtent(words[i], &w, &h);
+            dc->GetTextExtent(word, &wordWidth, &wordHeight);
+            dc->DrawRectangle(x, y, wordWidth, wordHeight);
+            dc->GetTextExtent(words[i], &wordWidth, &wordHeight);
             dc->DrawText(words[i], x, y);
-            x += w;
+            x += wordWidth;
         }
 
     }
@@ -746,15 +734,6 @@ void MyPrintout::DrawPageTwo()
 // Writes a header on a page. Margin units are in millimetres.
 bool MyPrintout::WritePageHeader(wxPrintout *printout, wxDC *dc, const wxString&text, float mmToLogical)
 {
-#if 0
-    static wxFont *headerFont = (wxFont *) NULL;
-    if (!headerFont)
-    {
-        headerFont = wxTheFontList->FindOrCreateFont(16, wxSWISS, wxNORMAL, wxBOLD);
-    }
-    dc->SetFont(headerFont);
-#endif
-
     int pageWidthMM, pageHeightMM;
 
     printout->GetPageSizeMM(&pageWidthMM, &pageHeightMM);

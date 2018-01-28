@@ -253,7 +253,7 @@ MyCanvas::MyCanvas( wxWindow *parent, wxWindowID id,
     }
 #endif
 
-#if wxUSE_LIBTIFF
+#if wxUSE_TGA
     image.Destroy();
 
     if ( !image.LoadFile( dir + wxT("horse.tga"), wxBITMAP_TYPE_TGA ) )
@@ -666,7 +666,7 @@ void MyCanvas::CreateAntiAliasedBitmap()
 
         dc.Clear();
 
-        dc.SetFont( wxFont( 24, wxDECORATIVE, wxNORMAL, wxNORMAL) );
+        dc.SetFont( wxFontInfo(24).Family(wxFONTFAMILY_DECORATIVE) );
         dc.SetTextForeground( wxT("RED") );
         dc.DrawText( wxT("This is anti-aliased Text."), 20, 5 );
         dc.DrawText( wxT("And a Rectangle."), 20, 45 );

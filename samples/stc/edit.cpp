@@ -82,8 +82,8 @@ wxBEGIN_EVENT_TABLE (Edit, wxStyledTextCtrl)
     EVT_MENU (myID_BRACEMATCH,         Edit::OnBraceMatch)
     EVT_MENU (myID_GOTO,               Edit::OnGoto)
     // view
-    EVT_MENU_RANGE (myID_HILIGHTFIRST, myID_HILIGHTLAST,
-                                       Edit::OnHilightLang)
+    EVT_MENU_RANGE (myID_HIGHLIGHTFIRST, myID_HIGHLIGHTLAST,
+                                       Edit::OnHighlightLang)
     EVT_MENU (myID_DISPLAYEOL,         Edit::OnDisplayEOL)
     EVT_MENU (myID_INDENTGUIDE,        Edit::OnIndentGuide)
     EVT_MENU (myID_LINENUMBER,         Edit::OnLineNumber)
@@ -103,15 +103,18 @@ wxBEGIN_EVENT_TABLE (Edit, wxStyledTextCtrl)
     EVT_MENU (myID_ANNOTATION_STYLE_STANDARD, Edit::OnAnnotationStyle)
     EVT_MENU (myID_ANNOTATION_STYLE_BOXED,    Edit::OnAnnotationStyle)
     // extra
-    EVT_MENU (myID_CHANGELOWER,        Edit::OnChangeCase)
-    EVT_MENU (myID_CHANGEUPPER,        Edit::OnChangeCase)
-    EVT_MENU (myID_CONVERTCR,          Edit::OnConvertEOL)
-    EVT_MENU (myID_CONVERTCRLF,        Edit::OnConvertEOL)
-    EVT_MENU (myID_CONVERTLF,          Edit::OnConvertEOL)
+    EVT_MENU (myID_CHANGELOWER,                 Edit::OnChangeCase)
+    EVT_MENU (myID_CHANGEUPPER,                 Edit::OnChangeCase)
+    EVT_MENU (myID_CONVERTCR,                   Edit::OnConvertEOL)
+    EVT_MENU (myID_CONVERTCRLF,                 Edit::OnConvertEOL)
+    EVT_MENU (myID_CONVERTLF,                   Edit::OnConvertEOL)
+    EVT_MENU(myID_MULTIPLE_SELECTIONS,          Edit::OnMultipleSelections)
+    EVT_MENU(myID_MULTI_PASTE,                  Edit::OnMultiPaste)
+    EVT_MENU(myID_MULTIPLE_SELECTIONS_TYPING,   Edit::OnMultipleSelectionsTyping)
+    EVT_MENU(myID_CUSTOM_POPUP,                 Edit::OnCustomPopup)
     // stc
     EVT_STC_MARGINCLICK (wxID_ANY,     Edit::OnMarginClick)
     EVT_STC_CHARADDED (wxID_ANY,       Edit::OnCharAdded)
-    EVT_STC_KEY( wxID_ANY , Edit::OnKey )
 
     EVT_KEY_DOWN( Edit::OnKeyDown )
 wxEND_EVENT_TABLE()
@@ -131,9 +134,6 @@ Edit::Edit (wxWindow *parent, wxWindowID id,
     // initialize language
     m_language = NULL;
 
-    // Use all the bits in the style byte as styles, not indicators.
-    SetStyleBits(8);
-    
     // default font for all styles
     SetViewEOL (g_CommonPrefs.displayEOLEnable);
     SetIndentationGuides (g_CommonPrefs.indentGuideEnable);
@@ -145,7 +145,7 @@ Edit::Edit (wxWindow *parent, wxWindowID id,
     SetReadOnly (g_CommonPrefs.readOnlyInitial);
     SetWrapMode (g_CommonPrefs.wrapModeInitial?
                  wxSTC_WRAP_WORD: wxSTC_WRAP_NONE);
-    wxFont font (10, wxMODERN, wxNORMAL, wxNORMAL);
+    wxFont font(wxFontInfo(10).Family(wxFONTFAMILY_MODERN));
     StyleSetFont (wxSTC_STYLE_DEFAULT, font);
     StyleSetForeground (wxSTC_STYLE_DEFAULT, *wxBLACK);
     StyleSetBackground (wxSTC_STYLE_DEFAULT, *wxWHITE);
@@ -176,7 +176,7 @@ Edit::Edit (wxWindow *parent, wxWindowID id,
     m_FoldingMargin = 16;
     CmdKeyClear (wxSTC_KEY_TAB, 0); // this is done by the menu accelerator key
     SetLayoutCache (wxSTC_CACHE_PAGE);
-
+    UsePopUp(wxSTC_POPUP_ALL);
 }
 
 Edit::~Edit () {}
@@ -205,11 +205,6 @@ void Edit::OnEditUndo (wxCommandEvent &WXUNUSED(event)) {
 void Edit::OnEditClear (wxCommandEvent &WXUNUSED(event)) {
     if (GetReadOnly()) return;
     Clear ();
-}
-
-void Edit::OnKey (wxStyledTextEvent &WXUNUSED(event))
-{
-    wxMessageBox("OnKey");
 }
 
 void Edit::OnKeyDown (wxKeyEvent &event)
@@ -287,8 +282,8 @@ void Edit::OnEditSelectLine (wxCommandEvent &WXUNUSED(event)) {
     SetSelection (lineStart, lineEnd);
 }
 
-void Edit::OnHilightLang (wxCommandEvent &event) {
-    InitializePrefs (g_LanguagePrefs [event.GetId() - myID_HILIGHTFIRST].name);
+void Edit::OnHighlightLang (wxCommandEvent &event) {
+    InitializePrefs (g_LanguagePrefs [event.GetId() - myID_HIGHLIGHTFIRST].name);
 }
 
 void Edit::OnDisplayEOL (wxCommandEvent &WXUNUSED(event)) {
@@ -439,6 +434,31 @@ void Edit::OnConvertEOL (wxCommandEvent &event) {
     SetEOLMode (eolMode);
 }
 
+void Edit::OnMultipleSelections(wxCommandEvent& WXUNUSED(event)) {
+    bool isSet = GetMultipleSelection();
+    SetMultipleSelection(!isSet);
+}
+
+void Edit::OnMultiPaste(wxCommandEvent& WXUNUSED(event)) {
+    int pasteMode = GetMultiPaste();
+    if (wxSTC_MULTIPASTE_EACH == pasteMode) {
+        SetMultiPaste(wxSTC_MULTIPASTE_ONCE);
+    }
+    else {
+        SetMultiPaste(wxSTC_MULTIPASTE_EACH);
+    }
+}
+
+void Edit::OnMultipleSelectionsTyping(wxCommandEvent& WXUNUSED(event)) {
+    bool isSet = GetAdditionalSelectionTyping();
+    SetAdditionalSelectionTyping(!isSet);
+}
+
+void Edit::OnCustomPopup(wxCommandEvent& evt)
+{
+    UsePopUp(evt.IsChecked() ? wxSTC_POPUP_NEVER : wxSTC_POPUP_ALL);
+}
+
 //! misc
 void Edit::OnMarginClick (wxStyledTextEvent &event) {
     if (event.GetMargin() == 2) {
@@ -529,7 +549,7 @@ bool Edit::InitializePrefs (const wxString &name) {
     // default fonts for all styles!
     int Nr;
     for (Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++) {
-        wxFont font (10, wxMODERN, wxNORMAL, wxNORMAL);
+        wxFont font(wxFontInfo(10).Family(wxFONTFAMILY_MODERN));
         StyleSetFont (Nr, font);
     }
 
@@ -543,8 +563,9 @@ bool Edit::InitializePrefs (const wxString &name) {
         for (Nr = 0; Nr < STYLE_TYPES_COUNT; Nr++) {
             if (curInfo->styles[Nr].type == -1) continue;
             const StyleInfo &curType = g_StylePrefs [curInfo->styles[Nr].type];
-            wxFont font (curType.fontsize, wxMODERN, wxNORMAL, wxNORMAL, false,
-                         curType.fontname);
+            wxFont font(wxFontInfo(curType.fontsize)
+                            .Family(wxFONTFAMILY_MODERN)
+                            .FaceName(curType.fontname));
             StyleSetFont (Nr, font);
             if (curType.foreground) {
                 StyleSetForeground (Nr, wxColour (curType.foreground));
@@ -598,7 +619,7 @@ bool Edit::InitializePrefs (const wxString &name) {
     SetFoldFlags (wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED |
                   wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
 
-    // set spaces and indention
+    // set spaces and indentation
     SetTabWidth (4);
     SetUseTabs (false);
     SetTabIndents (true);
@@ -623,7 +644,7 @@ bool Edit::InitializePrefs (const wxString &name) {
 bool Edit::LoadFile ()
 {
 #if wxUSE_FILEDLG
-    // get filname
+    // get filename
     if (!m_filename) {
         wxFileDialog dlg (this, wxT("Open file"), wxEmptyString, wxEmptyString,
                           wxT("Any file (*)|*"), wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_CHANGE_DIR);
@@ -660,7 +681,7 @@ bool Edit::SaveFile ()
     // return if no change
     if (!Modified()) return true;
 
-    // get filname
+    // get filename
     if (!m_filename) {
         wxFileDialog dlg (this, wxT("Save file"), wxEmptyString, wxEmptyString, wxT("Any file (*)|*"),
                           wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
@@ -717,7 +738,7 @@ EditProperties::EditProperties (Edit *edit,
     SetTitle (_("Properties"));
     wxString text;
 
-    // fullname
+    // full name
     wxBoxSizer *fullname = new wxBoxSizer (wxHORIZONTAL);
     fullname->Add (10, 0);
     fullname->Add (new wxStaticText (this, wxID_ANY, _("Full filename"),
@@ -816,10 +837,9 @@ EditProperties::EditProperties (Edit *edit,
 //----------------------------------------------------------------------------
 
 EditPrint::EditPrint (Edit *edit, const wxChar *title)
-              : wxPrintout(title) {
-    m_edit = edit;
-    m_printed = 0;
-
+              : wxPrintout(title)
+              , m_edit(edit)
+{
 }
 
 bool EditPrint::OnPrintPage (int page) {
@@ -831,10 +851,8 @@ bool EditPrint::OnPrintPage (int page) {
     PrintScaling (dc);
 
     // print page
-    if (page == 1) m_printed = 0;
-    m_printed = m_edit->FormatRange (1, m_printed, m_edit->GetLength(),
+    m_edit->FormatRange(true, page == 1 ? 0 : m_pageEnds[page-2], m_pageEnds[page-1],
                                      dc, dc, m_printRect, m_pageRect);
-
     return true;
 }
 
@@ -866,6 +884,12 @@ void EditPrint::GetPageInfo (int *minPage, int *maxPage, int *selPageFrom, int *
     wxSize page = g_pageSetupData->GetPaperSize();
     page.x = static_cast<int> (page.x * ppiScr.x / 25.4);
     page.y = static_cast<int> (page.y * ppiScr.y / 25.4);
+    // In landscape mode we need to swap the width and height
+    if ( g_pageSetupData->GetPrintData().GetOrientation() == wxLANDSCAPE )
+    {
+        wxSwap(page.x, page.y);
+    }
+
     m_pageRect = wxRect (0,
                          0,
                          page.x,
@@ -890,9 +914,12 @@ void EditPrint::GetPageInfo (int *minPage, int *maxPage, int *selPageFrom, int *
                           page.y - (top + bottom));
 
     // count pages
-    while (HasPage (*maxPage)) {
-        m_printed = m_edit->FormatRange (0, m_printed, m_edit->GetLength(),
-                                       dc, dc, m_printRect, m_pageRect);
+    m_pageEnds.Clear();
+    int printed = 0;
+    while ( printed < m_edit->GetLength() ) {
+        printed = m_edit->FormatRange(false, printed, m_edit->GetLength(),
+                                      dc, dc, m_printRect, m_pageRect);
+        m_pageEnds.Add(printed);
         *maxPage += 1;
     }
     if (*maxPage > 0) *minPage = 1;
@@ -900,9 +927,9 @@ void EditPrint::GetPageInfo (int *minPage, int *maxPage, int *selPageFrom, int *
     *selPageTo = *maxPage;
 }
 
-bool EditPrint::HasPage (int WXUNUSED(page)) {
-
-    return (m_printed < m_edit->GetLength());
+bool EditPrint::HasPage (int page)
+{
+    return page <= (int)m_pageEnds.Count();
 }
 
 bool EditPrint::PrintScaling (wxDC *dc){

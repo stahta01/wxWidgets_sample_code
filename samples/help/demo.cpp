@@ -96,10 +96,10 @@ public:
     // this one is called on application startup and is a good place for the app
     // initialization (doing it here and not in the ctor allows to have an error
     // return: if OnInit() returns false, the application terminates)
-    virtual bool OnInit();
+    virtual bool OnInit() wxOVERRIDE;
 
     // do some clean up here
-    virtual int OnExit();
+    virtual int OnExit() wxOVERRIDE;
 };
 
 // Define a new frame type: this is going to be our main frame
@@ -273,7 +273,7 @@ wxEND_EVENT_TABLE()
 // static object for many reasons) and also declares the accessor function
 // wxGetApp() which will return the reference of the right type (i.e. MyApp and
 // not wxApp)
-IMPLEMENT_APP(MyApp)
+wxIMPLEMENT_APP(MyApp);
 
 // ============================================================================
 // implementation
@@ -531,7 +531,7 @@ void MyFrame::OnBestHelp(wxCommandEvent& event)
 #if USE_HTML_HELP
 void MyFrame::OnModalHtmlHelp(wxCommandEvent& WXUNUSED(event))
 {
-    wxHtmlModalHelp modalHelp(this, wxT("doc.zip"), wxT("Introduction"));
+    wxHtmlModalHelp(this, wxT("doc.zip"), wxT("Introduction"));
 }
 #endif
 
@@ -706,8 +706,8 @@ MyModalDialog::MyModalDialog(wxWindow *parent)
                                       wxDefaultPosition, wxSize(300, 100),
                                       wxTE_MULTILINE);
     text->SetHelpText(_("Type text here if you have got nothing more interesting to do"));
-    sizerTop->Add(text, 0, wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-    sizerTop->Add(sizerRow, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    sizerTop->Add(text, 0, wxEXPAND|wxALL, 5 );
+    sizerTop->Add(sizerRow, 0, wxALIGN_RIGHT|wxALL, 5 );
 
     SetSizerAndFit(sizerTop);
 

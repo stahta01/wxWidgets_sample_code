@@ -43,7 +43,7 @@
 #endif
 
 
-IMPLEMENT_APP(MyApp)
+wxIMPLEMENT_APP(MyApp);
 
 // ---------------------------------------------------------------------------
 // global variables
@@ -261,7 +261,7 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
     info.AddDeveloper(wxT("Guillermo Rodriguez Garcia"));
     info.AddDeveloper(wxT("Francesco Montorsi"));
 
-    wxAboutBox(info);
+    wxAboutBox(info, this);
 }
 
 #if wxUSE_FILEDLG
