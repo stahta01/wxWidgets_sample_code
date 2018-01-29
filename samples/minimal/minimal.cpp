@@ -124,7 +124,7 @@ bool MyApp::OnInit()
         return false;
 
     // create the main application window
-    MyFrame *frame = new MyFrame("Minimal wxWidgets App");
+    MyFrame *frame = new MyFrame(wxT_2("Minimal wxWidgets App"));
 
     // and show it (the frames, unlike simple controls, are not shown when
     // created initially)
@@ -153,14 +153,14 @@ MyFrame::MyFrame(const wxString& title)
 
     // the "About" item should be in the help menu
     wxMenu *helpMenu = new wxMenu;
-    helpMenu->Append(Minimal_About, "&About\tF1", "Show about dialog");
+    helpMenu->Append(Minimal_About, wxT_2("&About\tF1"), wxT_2("Show about dialog"));
 
-    fileMenu->Append(Minimal_Quit, "E&xit\tAlt-X", "Quit this program");
+    fileMenu->Append(Minimal_Quit, wxT_2("E&xit\tAlt-X"), wxT_2("Quit this program"));
 
     // now append the freshly created menu to the menu bar...
     wxMenuBar *menuBar = new wxMenuBar();
-    menuBar->Append(fileMenu, "&File");
-    menuBar->Append(helpMenu, "&Help");
+    menuBar->Append(fileMenu, wxT_2("&File"));
+    menuBar->Append(helpMenu, wxT_2("&Help"));
 
     // ... and attach this menu bar to the frame
     SetMenuBar(menuBar);
@@ -175,7 +175,7 @@ MyFrame::MyFrame(const wxString& title)
 #if wxUSE_STATUSBAR
     // create a status bar just for fun (by default with 1 pane only)
     CreateStatusBar(2);
-    SetStatusText("Welcome to wxWidgets!");
+    SetStatusText(wxT_2("Welcome to wxWidgets!"));
 #endif // wxUSE_STATUSBAR
 }
 
@@ -192,14 +192,14 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
     wxMessageBox(wxString::Format
                  (
-                    "Welcome to %s!\n"
-                    "\n"
-                    "This is the minimal wxWidgets sample\n"
-                    "running under %s.",
+                    wxT_2("Welcome to %s!\n")
+                    wxT_2("\n")
+                    wxT_2("This is the minimal wxWidgets sample\n")
+                    wxT_2("running under %s."),
                     wxVERSION_STRING,
                     wxGetOsDescription()
                  ),
-                 "About wxWidgets minimal sample",
+                 wxT_2("About wxWidgets minimal sample"),
                  wxOK | wxICON_INFORMATION,
                  this);
 }
