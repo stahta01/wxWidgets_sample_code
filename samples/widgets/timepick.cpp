@@ -120,7 +120,7 @@ wxEND_EVENT_TABLE()
     #define FAMILY_CTRLS GENERIC_CTRLS
 #endif
 
-IMPLEMENT_WIDGETS_PAGE(TimePickerWidgetsPage, wxT("TimePicker"),
+IMPLEMENT_WIDGETS_PAGE(TimePickerWidgetsPage, wxS("TimePicker"),
                        FAMILY_CTRLS | PICKER_CTRLS
                        );
 

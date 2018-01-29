@@ -125,7 +125,7 @@ wxEND_EVENT_TABLE()
     #define FAMILY_CTRLS GENERIC_CTRLS
 #endif
 
-IMPLEMENT_WIDGETS_PAGE(SearchCtrlWidgetsPage, wxT("SearchCtrl"),
+IMPLEMENT_WIDGETS_PAGE(SearchCtrlWidgetsPage, wxS("SearchCtrl"),
                        FAMILY_CTRLS | EDITABLE_CTRLS | ALL_CTRLS);
 
 SearchCtrlWidgetsPage::SearchCtrlWidgetsPage(WidgetsBookCtrl *book,
@@ -142,12 +142,12 @@ void SearchCtrlWidgetsPage::CreateContent()
 
 
     wxSizer* box = new wxStaticBoxSizer(
-        new wxStaticBox(this, -1, wxT("Options")),
+        new wxStaticBox(this, -1, wxT_2("Options")),
         wxVERTICAL);
 
-    m_searchBtnCheck = new wxCheckBox(this, ID_SEARCH_CB, wxT("Search button"));
-    m_cancelBtnCheck = new wxCheckBox(this, ID_CANCEL_CB, wxT("Cancel button"));
-    m_menuBtnCheck   = new wxCheckBox(this, ID_MENU_CB,   wxT("Search menu"));
+    m_searchBtnCheck = new wxCheckBox(this, ID_SEARCH_CB, wxT_2("Search button"));
+    m_cancelBtnCheck = new wxCheckBox(this, ID_CANCEL_CB, wxT_2("Cancel button"));
+    m_menuBtnCheck   = new wxCheckBox(this, ID_MENU_CB,   wxT_2("Search menu"));
 
     m_searchBtnCheck->SetValue(true);
 
@@ -186,12 +186,12 @@ wxMenu* SearchCtrlWidgetsPage::CreateTestMenu()
 {
     wxMenu* menu = new wxMenu;
     const int SEARCH_MENU_SIZE = 5;
-    wxMenuItem* menuItem = menu->Append(wxID_ANY, wxT("Recent Searches"), wxT(""), wxITEM_NORMAL);
+    wxMenuItem* menuItem = menu->Append(wxID_ANY, wxT_2("Recent Searches"), wxT_2(""), wxITEM_NORMAL);
     menuItem->Enable(false);
     for ( int i = 0; i < SEARCH_MENU_SIZE; i++ )
     {
-        wxString itemText = wxString::Format(wxT("item %i"),i);
-        wxString tipText = wxString::Format(wxT("tip %i"),i);
+        wxString itemText = wxString::Format(wxT_2("item %i"),i);
+        wxString tipText = wxString::Format(wxT_2("tip %i"),i);
         menu->Append(ID_SEARCHMENU+i, itemText, tipText, wxITEM_NORMAL);
     }
 //     target->Connect(

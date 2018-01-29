@@ -115,7 +115,7 @@ wxEND_EVENT_TABLE()
 // implementation
 // ============================================================================
 
-IMPLEMENT_WIDGETS_PAGE(EditableListboxWidgetsPage, wxT("EditableListbox"), GENERIC_CTRLS);
+IMPLEMENT_WIDGETS_PAGE(EditableListboxWidgetsPage, wxS("EditableListbox"), GENERIC_CTRLS);
 
 EditableListboxWidgetsPage::EditableListboxWidgetsPage(WidgetsBookCtrl *book,
                                                        wxImageList *imaglist)
@@ -134,15 +134,15 @@ void EditableListboxWidgetsPage::CreateContent()
 
     // left pane
     wxStaticBox *box = new wxStaticBox(this, wxID_ANY,
-                                       wxT("&Set listbox parameters"));
+                                       wxT_2("&Set listbox parameters"));
     wxSizer *sizerLeft = new wxStaticBoxSizer(box, wxVERTICAL);
 
-    m_chkAllowNew = CreateCheckBoxAndAddToSizer(sizerLeft, wxT("Allow new items"));
-    m_chkAllowEdit = CreateCheckBoxAndAddToSizer(sizerLeft, wxT("Allow editing items"));
-    m_chkAllowDelete = CreateCheckBoxAndAddToSizer(sizerLeft, wxT("Allow deleting items"));
-    m_chkAllowNoReorder = CreateCheckBoxAndAddToSizer(sizerLeft, wxT("Block user reordering"));
+    m_chkAllowNew = CreateCheckBoxAndAddToSizer(sizerLeft, wxT_2("Allow new items"));
+    m_chkAllowEdit = CreateCheckBoxAndAddToSizer(sizerLeft, wxT_2("Allow editing items"));
+    m_chkAllowDelete = CreateCheckBoxAndAddToSizer(sizerLeft, wxT_2("Allow deleting items"));
+    m_chkAllowNoReorder = CreateCheckBoxAndAddToSizer(sizerLeft, wxT_2("Block user reordering"));
 
-    wxButton *btn = new wxButton(this, EditableListboxPage_Reset, wxT("&Reset"));
+    wxButton *btn = new wxButton(this, EditableListboxPage_Reset, wxT_2("&Reset"));
     sizerLeft->Add(btn, 0, wxALIGN_CENTRE_HORIZONTAL | wxALL, 15);
 
     // right pane

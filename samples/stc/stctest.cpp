@@ -54,19 +54,19 @@
 // declarations
 //============================================================================
 
-#define APP_NAME wxT("STC-Test")
+#define APP_NAME wxT_2("STC-Test")
 #define APP_DESCR _("See http://wxguide.sourceforge.net/")
 
-#define APP_MAINT wxT("Otto Wyss")
-#define APP_VENDOR wxT("wxWidgets")
-#define APP_COPYRIGTH wxT("(C) 2003 Otto Wyss")
-#define APP_LICENCE wxT("wxWidgets")
+#define APP_MAINT wxT_2("Otto Wyss")
+#define APP_VENDOR wxT_2("wxWidgets")
+#define APP_COPYRIGTH wxT_2("(C) 2003 Otto Wyss")
+#define APP_LICENCE wxT_2("wxWidgets")
 
-#define APP_VERSION wxT("0.1.alpha")
+#define APP_VERSION wxT_2("0.1.alpha")
 #define APP_BUILD __DATE__
 
-#define APP_WEBSITE wxT("http://www.wxWidgets.org")
-#define APP_MAIL wxT("mailto://???")
+#define APP_WEBSITE wxT_2("http://www.wxWidgets.org")
+#define APP_MAIL wxT_2("mailto://???")
 
 #define NONAME _("<untitled>")
 
@@ -214,7 +214,7 @@ bool App::OnInit () {
     SetVendorName (APP_VENDOR);
     g_appname = new wxString ();
     g_appname->Append (APP_VENDOR);
-    g_appname->Append (wxT("-"));
+    g_appname->Append (wxT_2("-"));
     g_appname->Append (APP_NAME);
 
 #if wxUSE_PRINTING_ARCHITECTURE
@@ -301,7 +301,7 @@ AppFrame::AppFrame (const wxString &title)
 
     // set icon and background
     SetTitle (*g_appname);
-    SetBackgroundColour (wxT("WHITE"));
+    SetBackgroundColour (wxT_2("WHITE"));
 
     // create menu
     m_menuBar = new wxMenuBar;
@@ -311,7 +311,7 @@ AppFrame::AppFrame (const wxString &title)
     m_edit = new Edit (this, wxID_ANY);
     m_edit->SetFocus();
 
-    FileOpen (wxT("stctest.cpp"));
+    FileOpen (wxT_2("stctest.cpp"));
 }
 
 AppFrame::~AppFrame () {
@@ -341,7 +341,7 @@ void AppFrame::OnFileOpen (wxCommandEvent &WXUNUSED(event)) {
     if (!m_edit) return;
 #if wxUSE_FILEDLG
     wxString fname;
-    wxFileDialog dlg (this, wxT("Open file"), wxEmptyString, wxEmptyString, wxT("Any file (*)|*"),
+    wxFileDialog dlg (this, wxT_2("Open file"), wxEmptyString, wxEmptyString, wxT_2("Any file (*)|*"),
                       wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_CHANGE_DIR);
     if (dlg.ShowModal() != wxID_OK) return;
     fname = dlg.GetPath ();
@@ -363,7 +363,7 @@ void AppFrame::OnFileSaveAs (wxCommandEvent &WXUNUSED(event)) {
     if (!m_edit) return;
 #if wxUSE_FILEDLG
     wxString filename = wxEmptyString;
-    wxFileDialog dlg (this, wxT("Save file"), wxEmptyString, wxEmptyString, wxT("Any file (*)|*"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    wxFileDialog dlg (this, wxT_2("Save file"), wxEmptyString, wxEmptyString, wxT_2("Any file (*)|*"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     if (dlg.ShowModal() != wxID_OK) return;
     filename = dlg.GetPath();
     m_edit->SaveFile (filename);
@@ -466,8 +466,8 @@ void AppFrame::OnContextMenu(wxContextMenuEvent& evt)
     }
 
     wxMenu menu;
-    menu.Append(wxID_ABOUT, wxT("&About"));
-    menu.Append(wxID_EXIT, wxT("E&xit"));
+    menu.Append(wxID_ABOUT, wxT_2("&About"));
+    menu.Append(wxID_EXIT, wxT_2("E&xit"));
     PopupMenu(&menu, point);
 }
 
@@ -733,23 +733,23 @@ public:
     {
         SetLexerXml();
 
-        SetProperty(wxT("fold"), wxT("1"));
-        SetProperty(wxT("fold.comment"), wxT("1"));
-        SetProperty(wxT("fold.compact"), wxT("1"));
-        SetProperty(wxT("fold.preprocessor"), wxT("1"));
-        SetProperty(wxT("fold.html"), wxT("1"));
-        SetProperty(wxT("fold.html.preprocessor"), wxT("1"));
+        SetProperty(wxT_2("fold"), wxT_2("1"));
+        SetProperty(wxT_2("fold.comment"), wxT_2("1"));
+        SetProperty(wxT_2("fold.compact"), wxT_2("1"));
+        SetProperty(wxT_2("fold.preprocessor"), wxT_2("1"));
+        SetProperty(wxT_2("fold.html"), wxT_2("1"));
+        SetProperty(wxT_2("fold.html.preprocessor"), wxT_2("1"));
 
         SetMarginType(margin_id_lineno, wxSTC_MARGIN_NUMBER);
         SetMarginWidth(margin_id_lineno, 32);
 
-        MarkerDefine(wxSTC_MARKNUM_FOLDER,        wxSTC_MARK_BOXPLUS, wxT("WHITE"), wxT("BLACK"));
-        MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN,    wxSTC_MARK_BOXMINUS,  wxT("WHITE"), wxT("BLACK"));
-        MarkerDefine(wxSTC_MARKNUM_FOLDERSUB,     wxSTC_MARK_VLINE,     wxT("WHITE"), wxT("BLACK"));
-        MarkerDefine(wxSTC_MARKNUM_FOLDEREND,     wxSTC_MARK_BOXPLUSCONNECTED, wxT("WHITE"), wxT("BLACK"));
-        MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_BOXMINUSCONNECTED, wxT("WHITE"), wxT("BLACK"));
-        MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER,     wxT("WHITE"), wxT("BLACK"));
-        MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL,    wxSTC_MARK_LCORNER,     wxT("WHITE"), wxT("BLACK"));
+        MarkerDefine(wxSTC_MARKNUM_FOLDER,        wxSTC_MARK_BOXPLUS, wxT_2("WHITE"), wxT_2("BLACK"));
+        MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN,    wxSTC_MARK_BOXMINUS,  wxT_2("WHITE"), wxT_2("BLACK"));
+        MarkerDefine(wxSTC_MARKNUM_FOLDERSUB,     wxSTC_MARK_VLINE,     wxT_2("WHITE"), wxT_2("BLACK"));
+        MarkerDefine(wxSTC_MARKNUM_FOLDEREND,     wxSTC_MARK_BOXPLUSCONNECTED, wxT_2("WHITE"), wxT_2("BLACK"));
+        MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_BOXMINUSCONNECTED, wxT_2("WHITE"), wxT_2("BLACK"));
+        MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER,     wxT_2("WHITE"), wxT_2("BLACK"));
+        MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL,    wxSTC_MARK_LCORNER,     wxT_2("WHITE"), wxT_2("BLACK"));
 
         SetMarginMask(margin_id_fold, wxSTC_MASK_FOLDERS);
         SetMarginWidth(margin_id_fold, 32);
@@ -780,7 +780,7 @@ public:
         StyleSetForeground(wxSTC_H_DOUBLESTRING, *wxBLACK);
         StyleSetForeground(wxSTC_H_SINGLESTRING, *wxBLACK);
         StyleSetForeground(wxSTC_H_OTHER, *wxBLUE);
-        StyleSetForeground(wxSTC_H_COMMENT, wxTheColourDatabase->Find(wxT("GREY")));
+        StyleSetForeground(wxSTC_H_COMMENT, wxTheColourDatabase->Find(wxT_2("GREY")));
         StyleSetForeground(wxSTC_H_ENTITY, *wxRED);
         StyleSetBold(wxSTC_H_ENTITY, true);
         StyleSetForeground(wxSTC_H_TAGEND, *wxBLUE);
@@ -814,7 +814,7 @@ void MinimalEditor::OnMarginClick(wxStyledTextEvent &event)
 
 void MinimalEditor::OnText(wxStyledTextEvent& event)
 {
-    wxLogDebug(wxT("Modified"));
+    wxLogDebug(wxT_2("Modified"));
     event.Skip();
 }
 

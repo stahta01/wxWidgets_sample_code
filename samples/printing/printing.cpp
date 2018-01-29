@@ -97,7 +97,7 @@ bool MyApp::OnInit(void)
     // ----------------------
 
 #if 0
-    wxImage image( wxT("test.jpg") );
+    wxImage image( wxT_2("test.jpg") );
     image.SetAlpha();
     int i,j;
     for (i = 0; i < image.GetWidth(); i++)
@@ -112,7 +112,7 @@ bool MyApp::OnInit(void)
     // Create the main frame window
     // ----------------------------
 
-    MyFrame* frame = new MyFrame((wxFrame *) NULL, wxT("wxWidgets Printing Demo"),
+    MyFrame* frame = new MyFrame((wxFrame *) NULL, wxT_2("wxWidgets Printing Demo"),
                                  wxPoint(0, 0), wxSize(400, 400));
 
     frame->Centre(wxBOTH);
@@ -154,13 +154,13 @@ void MyApp::Draw(wxDC&dc)
 
     dc.DrawRoundedRectangle(0, 20, 200, 80, 20);
 
-    dc.DrawText( wxT("Rectangle 200 by 80"), 40, 40);
+    dc.DrawText( wxT_2("Rectangle 200 by 80"), 40, 40);
 
     dc.SetPen( wxPen(*wxBLACK, 0, wxPENSTYLE_DOT_DASH) );
     dc.DrawEllipse(50, 140, 100, 50);
     dc.SetPen(*wxRED_PEN);
 
-    dc.DrawText( wxT("Test message: this is in 10 point text"), 10, 180);
+    dc.DrawText( wxT_2("Test message: this is in 10 point text"), 10, 180);
 
     dc.DrawRotatedText( wxS("This\nis\na multi-line\ntext"), 170, 100, -m_angle/1.5);
 
@@ -204,11 +204,11 @@ void MyApp::Draw(wxDC&dc)
 
     wxString str;
     int i = 0;
-    str.Printf( wxT("---- Text at angle %d ----"), i );
+    str.Printf( wxT_2("---- Text at angle %d ----"), i );
     dc.DrawRotatedText( str, 100, 300, i );
 
     i = m_angle;
-    str.Printf( wxT("---- Text at angle %d ----"), i );
+    str.Printf( wxT_2("---- Text at angle %d ----"), i );
     dc.DrawRotatedText( str, 100, 300, i );
 
     wxIcon my_icon = wxICON(sample);
@@ -290,7 +290,7 @@ MyFrame::MyFrame(wxFrame *frame, const wxString&title, const wxPoint&pos, const 
 #if wxUSE_STATUSBAR
     // Give us a status line
     CreateStatusBar(2);
-    SetStatusText(wxT("Printing demo"));
+    SetStatusText(wxT_2("Printing demo"));
 #endif // wxUSE_STATUSBAR
 
     // Load icon and bitmap
@@ -299,12 +299,12 @@ MyFrame::MyFrame(wxFrame *frame, const wxString&title, const wxPoint&pos, const 
     // Make a menubar
     wxMenu *file_menu = new wxMenu;
 
-    file_menu->Append(wxID_PRINT, wxT("&Print..."),                 wxT("Print"));
-    file_menu->Append(WXPRINT_PAGE_SETUP, wxT("Page Set&up..."),    wxT("Page setup"));
+    file_menu->Append(wxID_PRINT, wxT_2("&Print..."),                 wxT_2("Print"));
+    file_menu->Append(WXPRINT_PAGE_SETUP, wxT_2("Page Set&up..."),    wxT_2("Page setup"));
 #ifdef __WXMAC__
-    file_menu->Append(WXPRINT_PAGE_MARGINS, wxT("Page Margins..."), wxT("Page margins"));
+    file_menu->Append(WXPRINT_PAGE_MARGINS, wxT_2("Page Margins..."), wxT_2("Page margins"));
 #endif
-    file_menu->Append(wxID_PREVIEW, wxT("Print Pre&view"),          wxT("Preview"));
+    file_menu->Append(wxID_PREVIEW, wxT_2("Print Pre&view"),          wxT_2("Preview"));
 
     wxMenu * const menuModalKind = new wxMenu;
     menuModalKind->AppendRadioItem(WXPRINT_FRAME_MODAL_APP, "&App modal");
@@ -321,24 +321,24 @@ MyFrame::MyFrame(wxFrame *frame, const wxString&title, const wxPoint&pos, const 
 
 #if wxUSE_POSTSCRIPT
     file_menu->AppendSeparator();
-    file_menu->Append(WXPRINT_PRINT_PS, wxT("Print PostScript..."),           wxT("Print (PostScript)"));
-    file_menu->Append(WXPRINT_PAGE_SETUP_PS, wxT("Page Setup PostScript..."), wxT("Page setup (PostScript)"));
-    file_menu->Append(WXPRINT_PREVIEW_PS, wxT("Print Preview PostScript"),    wxT("Preview (PostScript)"));
+    file_menu->Append(WXPRINT_PRINT_PS, wxT_2("Print PostScript..."),           wxT_2("Print (PostScript)"));
+    file_menu->Append(WXPRINT_PAGE_SETUP_PS, wxT_2("Page Setup PostScript..."), wxT_2("Page setup (PostScript)"));
+    file_menu->Append(WXPRINT_PREVIEW_PS, wxT_2("Print Preview PostScript"),    wxT_2("Preview (PostScript)"));
 #endif
 
     file_menu->AppendSeparator();
-    file_menu->Append(WXPRINT_ANGLEUP, wxT("Angle up\tAlt-U"),                wxT("Raise rotated text angle"));
-    file_menu->Append(WXPRINT_ANGLEDOWN, wxT("Angle down\tAlt-D"),            wxT("Lower rotated text angle"));
+    file_menu->Append(WXPRINT_ANGLEUP, wxT_2("Angle up\tAlt-U"),                wxT_2("Raise rotated text angle"));
+    file_menu->Append(WXPRINT_ANGLEDOWN, wxT_2("Angle down\tAlt-D"),            wxT_2("Lower rotated text angle"));
     file_menu->AppendSeparator();
-    file_menu->Append(wxID_EXIT, wxT("E&xit"),                                wxT("Exit program"));
+    file_menu->Append(wxID_EXIT, wxT_2("E&xit"),                                wxT_2("Exit program"));
 
     wxMenu *help_menu = new wxMenu;
-    help_menu->Append(wxID_ABOUT, wxT("&About"),                              wxT("About this demo"));
+    help_menu->Append(wxID_ABOUT, wxT_2("&About"),                              wxT_2("About this demo"));
 
     wxMenuBar *menu_bar = new wxMenuBar;
 
-    menu_bar->Append(file_menu, wxT("&File"));
-    menu_bar->Append(help_menu, wxT("&Help"));
+    menu_bar->Append(file_menu, wxT_2("&File"));
+    menu_bar->Append(help_menu, wxT_2("&Help"));
 
     // Associate the menu bar with the frame
     SetMenuBar(menu_bar);
@@ -364,16 +364,16 @@ void MyFrame::OnPrint(wxCommandEvent& WXUNUSED(event))
     wxPrintDialogData printDialogData(* g_printData);
 
     wxPrinter printer(&printDialogData);
-    MyPrintout printout(this, wxT("My printout"));
+    MyPrintout printout(this, wxT_2("My printout"));
     if (!printer.Print(this, &printout, true /*prompt*/))
     {
         if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
         {
-            wxLogError(wxT("There was a problem printing. Perhaps your current printer is not set correctly?"));
+            wxLogError(wxT_2("There was a problem printing. Perhaps your current printer is not set correctly?"));
         }
         else
         {
-            wxLogMessage(wxT("You canceled printing"));
+            wxLogMessage(wxT_2("You canceled printing"));
         }
     }
     else
@@ -391,12 +391,12 @@ void MyFrame::OnPrintPreview(wxCommandEvent& WXUNUSED(event))
     if (!preview->IsOk())
     {
         delete preview;
-        wxLogError(wxT("There was a problem previewing.\nPerhaps your current printer is not set correctly?"));
+        wxLogError(wxT_2("There was a problem previewing.\nPerhaps your current printer is not set correctly?"));
         return;
     }
 
     wxPreviewFrame *frame =
-        new wxPreviewFrame(preview, this, wxT("Demo Print Preview"), wxPoint(100, 100), wxSize(600, 650));
+        new wxPreviewFrame(preview, this, wxT_2("Demo Print Preview"), wxPoint(100, 100), wxSize(600, 650));
     frame->Centre(wxBOTH);
     frame->InitializeWithModality(m_previewModality);
     frame->Show();
@@ -419,7 +419,7 @@ void MyFrame::OnPrintPS(wxCommandEvent& WXUNUSED(event))
     wxPrintDialogData printDialogData(* g_printData);
 
     wxPostScriptPrinter printer(&printDialogData);
-    MyPrintout printout(this, wxT("My printout"));
+    MyPrintout printout(this, wxT_2("My printout"));
     printer.Print(this, &printout, true/*prompt*/);
 
     (*g_printData) = printer.GetPrintDialogData().GetPrintData();
@@ -431,7 +431,7 @@ void MyFrame::OnPrintPreviewPS(wxCommandEvent& WXUNUSED(event))
     wxPrintDialogData printDialogData(* g_printData);
     wxPrintPreview *preview = new wxPrintPreview(new MyPrintout(this), new MyPrintout(this), &printDialogData);
     wxPreviewFrame *frame =
-        new wxPreviewFrame(preview, this, wxT("Demo Print Preview"), wxPoint(100, 100), wxSize(600, 650));
+        new wxPreviewFrame(preview, this, wxT_2("Demo Print Preview"), wxPoint(100, 100), wxSize(600, 650));
     frame->Centre(wxBOTH);
     frame->Initialize();
     frame->Show();
@@ -464,8 +464,8 @@ void MyFrame::OnPageMargins(wxCommandEvent& WXUNUSED(event))
 
 void MyFrame::OnPrintAbout(wxCommandEvent& WXUNUSED(event))
 {
-    (void)wxMessageBox(wxT("wxWidgets printing demo\nAuthor: Julian Smart"),
-                       wxT("About wxWidgets printing demo"), wxOK|wxCENTRE);
+    (void)wxMessageBox(wxT_2("wxWidgets printing demo\nAuthor: Julian Smart"),
+                       wxT_2("About wxWidgets printing demo"), wxOK|wxCENTRE);
 }
 
 void MyFrame::OnAngleUp(wxCommandEvent& WXUNUSED(event))
@@ -527,7 +527,7 @@ bool MyPrintout::OnPrintPage(int page)
         // screen size of text matches paper size.
         MapScreenSizeToPage();
 
-        dc->DrawText(wxString::Format(wxT("PAGE %d"), page), 0, 0);
+        dc->DrawText(wxString::Format(wxT_2("PAGE %d"), page), 0, 0);
 
         return true;
     }
@@ -683,8 +683,8 @@ void MyPrintout::DrawPageTwo()
     dc->SetBrush(*wxTRANSPARENT_BRUSH);
 
     { // GetTextExtent demo:
-        wxString words[7] = { wxT("This "), wxT("is "), wxT("GetTextExtent "),
-                             wxT("testing "), wxT("string. "), wxT("Enjoy "), wxT("it!") };
+        wxString words[7] = { wxT_2("This "), wxT_2("is "), wxT_2("GetTextExtent "),
+                             wxT_2("testing "), wxT_2("string. "), wxT_2("Enjoy "), wxT_2("it!") };
         long x = 200, y= 250;
 
         dc->SetFont(wxFontInfo(15).Family(wxFONTFAMILY_SWISS));
@@ -705,7 +705,7 @@ void MyPrintout::DrawPageTwo()
 
     dc->SetFont(wxGetApp().GetTestFont());
 
-    dc->DrawText(wxT("Some test text"), 200, 300 );
+    dc->DrawText(wxT_2("Some test text"), 200, 300 );
 
     // TESTING
 
@@ -728,7 +728,7 @@ void MyPrintout::DrawPageTwo()
     dc->DrawLine( (long)leftMarginLogical, (long)bottomMarginLogical,
         (long)rightMarginLogical,  (long)bottomMarginLogical);
 
-    WritePageHeader(this, dc, wxT("A header"), logUnitsFactor);
+    WritePageHeader(this, dc, wxT_2("A header"), logUnitsFactor);
 }
 
 // Writes a header on a page. Margin units are in millimetres.

@@ -156,9 +156,9 @@ public:
     virtual wxString GetColumnType( unsigned int col ) const wxOVERRIDE
     {
         if (col == 2)
-            return wxT("long");
+            return wxT_2("long");
 
-        return wxT("string");
+        return wxT_2("string");
     }
 
     virtual void GetValue( wxVariant &variant,
@@ -224,9 +224,9 @@ public:
     virtual wxString GetColumnType( unsigned int col ) const wxOVERRIDE
     {
         if (col == Col_IconText)
-            return wxT("wxDataViewIconText");
+            return wxT_2("wxDataViewIconText");
 
-        return wxT("string");
+        return wxT_2("string");
     }
 
     virtual void GetValueByRow( wxVariant &variant,

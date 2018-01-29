@@ -129,7 +129,7 @@ wxEND_EVENT_TABLE()
     #define FAMILY_CTRLS GENERIC_CTRLS
 #endif
 
-IMPLEMENT_WIDGETS_PAGE(FontPickerWidgetsPage, wxT("FontPicker"),
+IMPLEMENT_WIDGETS_PAGE(FontPickerWidgetsPage, wxS("FontPicker"),
                        PICKER_CTRLS | FAMILY_CTRLS);
 
 FontPickerWidgetsPage::FontPickerWidgetsPage(WidgetsBookCtrl *book,
@@ -143,13 +143,13 @@ void FontPickerWidgetsPage::CreateContent()
     // left pane
     wxSizer *boxleft = new wxBoxSizer(wxVERTICAL);
 
-    wxStaticBoxSizer *fontbox = new wxStaticBoxSizer(wxVERTICAL, this, wxT("&FontPicker style"));
-    m_chkFontTextCtrl = CreateCheckBoxAndAddToSizer(fontbox, wxT("With textctrl"));
-    m_chkFontDescAsLabel = CreateCheckBoxAndAddToSizer(fontbox, wxT("Font desc as btn label"));
-    m_chkFontUseFontForLabel = CreateCheckBoxAndAddToSizer(fontbox, wxT("Use font for label"));
+    wxStaticBoxSizer *fontbox = new wxStaticBoxSizer(wxVERTICAL, this, wxT_2("&FontPicker style"));
+    m_chkFontTextCtrl = CreateCheckBoxAndAddToSizer(fontbox, wxT_2("With textctrl"));
+    m_chkFontDescAsLabel = CreateCheckBoxAndAddToSizer(fontbox, wxT_2("Font desc as btn label"));
+    m_chkFontUseFontForLabel = CreateCheckBoxAndAddToSizer(fontbox, wxT_2("Use font for label"));
     boxleft->Add(fontbox, 0, wxALL|wxGROW, 5);
 
-    boxleft->Add(new wxButton(this, PickerPage_Reset, wxT("&Reset")),
+    boxleft->Add(new wxButton(this, PickerPage_Reset, wxT_2("&Reset")),
                  0, wxALIGN_CENTRE_HORIZONTAL | wxALL, 15);
 
     Reset();    // set checkboxes state
@@ -227,7 +227,7 @@ void FontPickerWidgetsPage::OnButtonReset(wxCommandEvent& WXUNUSED(event))
 
 void FontPickerWidgetsPage::OnFontChange(wxFontPickerEvent& event)
 {
-    wxLogMessage(wxT("The font changed to '%s' with size %d !"),
+    wxLogMessage(wxT_2("The font changed to '%s' with size %d !"),
                  event.GetFont().GetFaceName().c_str(), event.GetFont().GetPointSize());
 }
 

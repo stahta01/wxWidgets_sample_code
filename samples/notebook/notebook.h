@@ -186,15 +186,15 @@ enum ID_COMMANDS
     to decide what type of page it is.
 */
 
-#define I_WAS_INSERTED_PAGE_NAME        wxT("Inserted")
-#define RADIOBUTTONS_PAGE_NAME          wxT("Radiobuttons")
-#define VETO_PAGE_NAME                  wxT("Veto")
-#define MAXIMIZED_BUTTON_PAGE_NAME      wxT("Maximized button")
+#define I_WAS_INSERTED_PAGE_NAME        wxT_2("Inserted")
+#define RADIOBUTTONS_PAGE_NAME          wxT_2("Radiobuttons")
+#define VETO_PAGE_NAME                  wxT_2("Veto")
+#define MAXIMIZED_BUTTON_PAGE_NAME      wxT_2("Maximized button")
 
 // Pages that can be added by the user
-#define INSERTED_PAGE_NAME              wxT("Inserted ")
-#define ADDED_PAGE_NAME                 wxT("Added ")
-#define ADDED_PAGE_NAME_BEFORE          wxT(" Inserted before ")
-#define ADDED_SUB_PAGE_NAME             wxT(" Inserted sub-page ")
+#define INSERTED_PAGE_NAME              wxT_2("Inserted ")
+#define ADDED_PAGE_NAME                 wxT_2("Added ")
+#define ADDED_PAGE_NAME_BEFORE          wxT_2(" Inserted before ")
+#define ADDED_SUB_PAGE_NAME             wxT_2(" Inserted sub-page ")
 
 

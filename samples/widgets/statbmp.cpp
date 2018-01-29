@@ -61,7 +61,7 @@ private:
 
     void OnMouseEvent(wxMouseEvent& WXUNUSED(event))
     {
-        wxLogMessage(wxT("wxStaticBitmap clicked."));
+        wxLogMessage(wxT_2("wxStaticBitmap clicked."));
     }
 
     wxStaticBitmapBase *m_statbmp;
@@ -73,7 +73,7 @@ private:
     DECLARE_WIDGETS_PAGE(StatBmpWidgetsPage)
 };
 
-IMPLEMENT_WIDGETS_PAGE(StatBmpWidgetsPage, wxT("StaticBitmap"),
+IMPLEMENT_WIDGETS_PAGE(StatBmpWidgetsPage, wxS("StaticBitmap"),
                        ALL_CTRLS);
 
 void StatBmpWidgetsPage::CreateContent()

@@ -388,7 +388,7 @@ bool DXFRenderer::ParseHeader(wxInputStream& stream)
     while (stream.CanRead())
     {
         GetLines(text, line1, line2);
-        if (line1 == wxT("0") && line2 == wxT("ENDSEC"))
+        if (line1 == wxT_2("0") && line2 == wxT_2("ENDSEC"))
             return true;
     }
     return false;
@@ -404,7 +404,7 @@ bool DXFRenderer::ParseTables(wxInputStream& stream)
     while (stream.CanRead())
     {
         GetLines(text, line1, line2);
-        if (line1 == wxT("0") && inlayer)
+        if (line1 == wxT_2("0") && inlayer)
         {
             // flush layer
             if (!layer.name.IsEmpty() && layer.colour != -1)
@@ -417,15 +417,15 @@ bool DXFRenderer::ParseTables(wxInputStream& stream)
             layer = DXFLayer();
             inlayer = false;
         }
-        if (line1 == wxT("0") && line2 == wxT("ENDSEC"))
+        if (line1 == wxT_2("0") && line2 == wxT_2("ENDSEC"))
             return true;
-        else if (line1 == wxT("0") && line2 == wxT("LAYER"))
+        else if (line1 == wxT_2("0") && line2 == wxT_2("LAYER"))
             inlayer = true;
         else if (inlayer)
         {
-            if (line1 == wxT("2")) // layer name
+            if (line1 == wxT_2("2")) // layer name
                 layer.name = line2;
-            else if (line1 == wxT("62")) // ACI colour
+            else if (line1 == wxT_2("62")) // ACI colour
             {
                 long l;
                 line2.ToLong(&l);
@@ -464,7 +464,7 @@ bool DXFRenderer::ParseEntities(wxInputStream& stream)
     while (stream.CanRead())
     {
         GetLines(text, line1, line2);
-        if (line1 == wxT("0") && state > 0)
+        if (line1 == wxT_2("0") && state > 0)
         {
             // flush entity
             if (state == 1) // 3DFACE
@@ -499,43 +499,43 @@ bool DXFRenderer::ParseEntities(wxInputStream& stream)
                 state = 0;
             }
         }
-        if (line1 == wxT("0") && line2 == wxT("ENDSEC"))
+        if (line1 == wxT_2("0") && line2 == wxT_2("ENDSEC"))
             return true;
-        else if (line1 == wxT("0") && line2 == wxT("3DFACE"))
+        else if (line1 == wxT_2("0") && line2 == wxT_2("3DFACE"))
             state = 1;
-        else if (line1 == wxT("0") && line2 == wxT("LINE"))
+        else if (line1 == wxT_2("0") && line2 == wxT_2("LINE"))
             state = 2;
         else if (state > 0)
         {
             const double d=ToDouble(line2);
 
-            if (line1 == wxT("10"))
+            if (line1 == wxT_2("10"))
                 v[0].x = d;
-            else if (line1 == wxT("20"))
+            else if (line1 == wxT_2("20"))
                 v[0].y = d;
-            else if (line1 == wxT("30"))
+            else if (line1 == wxT_2("30"))
                 v[0].z = d;
-            else if (line1 == wxT("11"))
+            else if (line1 == wxT_2("11"))
                 v[1].x = d;
-            else if (line1 == wxT("21"))
+            else if (line1 == wxT_2("21"))
                 v[1].y = d;
-            else if (line1 == wxT("31"))
+            else if (line1 == wxT_2("31"))
                 v[1].z = d;
-            else if (line1 == wxT("12"))
+            else if (line1 == wxT_2("12"))
                 v[2].x = d;
-            else if (line1 == wxT("22"))
+            else if (line1 == wxT_2("22"))
                 v[2].y = d;
-            else if (line1 == wxT("32"))
+            else if (line1 == wxT_2("32"))
                 v[2].z = d;
-            else if (line1 == wxT("13"))
+            else if (line1 == wxT_2("13"))
                 v[3].x = d;
-            else if (line1 == wxT("23"))
+            else if (line1 == wxT_2("23"))
                 v[3].y = d;
-            else if (line1 == wxT("33"))
+            else if (line1 == wxT_2("33"))
                 v[3].z = d;
-            else if (line1 == wxT("8"))  // layer
+            else if (line1 == wxT_2("8"))  // layer
                 layer = line2;
-            else if (line1 == wxT("62")) // colour
+            else if (line1 == wxT_2("62")) // colour
             {
                 long l;
                 line2.ToLong(&l);
@@ -557,24 +557,24 @@ bool DXFRenderer::Load(wxInputStream& stream)
     while (stream.CanRead())
     {
         GetLines(text, line1, line2);
-        if (line1 == wxT("999")) // comment
+        if (line1 == wxT_2("999")) // comment
             continue;
-        else if (line1 == wxT("0") && line2 == wxT("SECTION"))
+        else if (line1 == wxT_2("0") && line2 == wxT_2("SECTION"))
         {
             GetLines(text, line1, line2);
-            if (line1 == wxT("2"))
+            if (line1 == wxT_2("2"))
             {
-                if (line2 == wxT("HEADER"))
+                if (line2 == wxT_2("HEADER"))
                 {
                     if (!ParseHeader(stream))
                         return false;
                 }
-                else if (line2 == wxT("TABLES"))
+                else if (line2 == wxT_2("TABLES"))
                 {
                     if (!ParseTables(stream))
                         return false;
                 }
-                else if (line2 == wxT("ENTITIES"))
+                else if (line2 == wxT_2("ENTITIES"))
                 {
                     if (!ParseEntities(stream))
                         return false;
