@@ -31,6 +31,7 @@
 
 #include <wx/app.h>
 #include <wx/cmdline.h>
+#include <wx/version.h> 
 
 // ============================================================================
 // implementation
@@ -41,8 +42,10 @@ static const wxCmdLineEntryDesc cmdLineDesc[] =
     { wxCMD_LINE_SWITCH, "h", "help", "show this help message",
         wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
     { wxCMD_LINE_SWITCH, "d", "dummy", "a dummy switch" },
+#if wxCHECK_VERSION_FULL(3, 1, 1, 0)
     { wxCMD_LINE_SWITCH, "s", "secret", "a secret switch",
         wxCMD_LINE_VAL_NONE, wxCMD_LINE_HIDDEN },
+#endif // wxCHECK_VERSION
     // ... your other command line options here...
 
     { wxCMD_LINE_NONE }
